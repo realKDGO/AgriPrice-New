@@ -1,0 +1,15 @@
+/* components/common/ — Place reusable UI components here.
+ *
+ * Examples:
+ *   Button.jsx        — Styled button with variant props
+ *   Input.jsx         — Controlled form input
+ *   Modal.jsx         — Reusable modal wrapper
+ *   Spinner.jsx       — Loading spinner
+ *   Badge.jsx         — Status or category badge
+ *   Table.jsx         — Data table wrapper
+ *
+ * Naming conventions:
+ *   - PascalCase for component files (Button.jsx)
+ *   - One component per file
+ *   - Co-locate component-specific CSS as Button.module.css
+ */

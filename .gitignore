@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.local
+backend/uploads/
+.env.*
+!.env.example
+!**/.env.presentation.example
+**/dist/
+.sites-runtime/
+coverage/
+*.log

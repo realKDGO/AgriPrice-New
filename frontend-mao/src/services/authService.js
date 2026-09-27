@@ -1,0 +1,2 @@
+import {get,post,setAccessToken,refreshSession} from "./api";
+export const authService={me:()=>get("/auth/me"),restore:refreshSession,async login(email,password,rememberMe=false){const r=await post("/auth/login",{email,password,rememberMe});setAccessToken(r.accessToken);return r.user;},async logout(){await post("/auth/logout",{});setAccessToken(null);},forgot:email=>post("/auth/forgot-password",{email})};

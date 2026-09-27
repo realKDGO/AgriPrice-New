@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+enum Role {
+  FARMER
+  MAO
+  ADMIN
+}
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+enum RecordStatus {
+  ACTIVE
+  ARCHIVED
+}
+enum PriceStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  firstName String @db.VarChar(80)
+  lastName String @db.VarChar(80)
+  email String @unique @db.VarChar(254)
+  passwordHash String
+  role Role @default(FARMER)
+  status AccountStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLoginAt DateTime?
+  termsVersion String @default("2026-09-11")
+  termsAcceptedAt DateTime @default(now())
+  sessions RefreshSession[]
+  preference UserPreference?
+  notifications Notification[]
+  auditLogs AuditLog[]
+  cropsCreated Crop[] @relation("CropCreator")
+  cropsUpdated Crop[] @relation("CropUpdater")
+  pricesCreated Price[] @relation("PriceCreator")
+  pricesReviewed Price[] @relation("PriceReviewer")
+  @@index([role, status])
+}
+model RefreshSession {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  tokenHash String @unique
+  familyId String @db.Uuid
+  lastUsedAt DateTime @default(now())
+  persistent Boolean @default(false)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId, revokedAt])
+  @@index([familyId])
+}
+model UserPreference {
+  userId String @id @db.Uuid
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  price Boolean @default(true)
+  forecast Boolean @default(true)
+  market Boolean @default(true)
+  language String @default("English")
+  theme String @default("light")
+  textSize String @default("standard")
+  defaultCrop String?
+  updatedAt DateTime @updatedAt
+}
+model Crop {
+  id String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(100)
+  category String @db.VarChar(30)
+  unit String @default("kg") @db.VarChar(10)
+  imageUrl String
+  imagePath String
+  status RecordStatus @default(ACTIVE)
+  createdBy String? @db.Uuid
+  updatedBy String? @db.Uuid
+  creator User? @relation("CropCreator", fields:[createdBy], references:[id])
+  updater User? @relation("CropUpdater", fields:[updatedBy], references:[id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prices Price[]
+  forecasts Forecast[]
+  @@index([status, category])
+}
+model Market {
+  id String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(120)
+  location String @db.VarChar(200)
+  distanceKm Decimal? @db.Decimal(10,2)
+  transportBaseCost Decimal @db.Decimal(12,2)
+  status RecordStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prices Price[]
+  forecasts Forecast[]
+  @@index([status])
+}
+model Price {
+  id String @id @default(uuid()) @db.Uuid
+  cropId String @db.Uuid
+  marketId String @db.Uuid
+  crop Crop @relation(fields:[cropId], references:[id])
+  market Market @relation(fields:[marketId], references:[id])
+  price Decimal @db.Decimal(12,2)
+  previousPrice Decimal? @db.Decimal(12,2)
+  date DateTime @db.Date
+  status PriceStatus @default(PENDING)
+  source String @db.VarChar(200)
+  reviewNote String? @db.VarChar(1000)
+  createdBy String? @db.Uuid
+  reviewedBy String? @db.Uuid
+  creator User? @relation("PriceCreator", fields:[createdBy], references:[id])
+  reviewer User? @relation("PriceReviewer", fields:[reviewedBy], references:[id])
+  reviewedAt DateTime?
+  revisionOfId String? @db.Uuid
+  revisionOf Price? @relation("PriceRevision", fields:[revisionOfId], references:[id])
+  revisions Price[] @relation("PriceRevision")
+  supersededAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([cropId, marketId, date])
+  @@index([status, date])
+  @@index([marketId, date])
+  @@index([revisionOfId])
+}
+model Forecast {
+  id String @id @default(uuid()) @db.Uuid
+  cropId String @db.Uuid
+  marketId String @db.Uuid
+  crop Crop @relation(fields:[cropId], references:[id])
+  market Market @relation(fields:[marketId], references:[id])
+  horizonMonths Int
+  forecastDate DateTime @db.Date
+  targetDate DateTime @db.Date
+  predictedPrice Decimal @db.Decimal(12,2)
+  modelVersion String
+  generatedAt DateTime @default(now())
+  status String @default("AVAILABLE")
+  inputCount Int
+  @@unique([cropId, marketId, forecastDate, horizonMonths, modelVersion])
+  @@index([cropId, marketId, generatedAt])
+}
+model Notification {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  type String
+  title String
+  message String
+  isRead Boolean @default(false)
+  relatedEntityType String?
+  relatedEntityId String?
+  createdAt DateTime @default(now())
+  @@index([userId, isRead, createdAt])
+}
+model AuditLog {
+  id String @id @default(uuid()) @db.Uuid
+  actorUserId String? @db.Uuid
+  actor User? @relation(fields:[actorUserId], references:[id], onDelete:SetNull)
+  action String
+  entityType String
+  entityId String?
+  status String @default("SUCCESS")
+  metadata Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
+}
+model ContactMessage {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(120)
+  email String @db.VarChar(254)
+  subject String @db.VarChar(200)
+  message String @db.VarChar(5000)
+  status String @default("NEW")
+  createdAt DateTime @default(now())
+  @@index([status, createdAt])
+}
+model SystemSetting {
+  key String @id
+  value Json
+  updatedAt DateTime @updatedAt
+}
+model StorageCleanup {
+  id String @id @default(uuid()) @db.Uuid
+  imagePath String @unique
+  createdAt DateTime @default(now())
+  attempts Int @default(0)
+}

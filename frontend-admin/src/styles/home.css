@@ -1,0 +1,211 @@
+    .signup-page {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    background: #f7f8f6;
+    }
+    .signup-panel {
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 56px;
+    background: linear-gradient(160deg, #0f3d2e 0%, #1e5c46 55%, #2c7a5c 100%);
+    color: #f2f7f4;
+    min-height: 100vh;
+    box-sizing: border-box;
+    }
+    .signup-panel__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    }
+    .signup-panel__logo {
+    font-size: 22px;
+    line-height: 1;
+    }
+    .signup-panel__brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    }
+    .signup-panel__body {
+    max-width: 480px;
+    }
+    .signup-panel__headline {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 20px 0;
+    }
+    .signup-panel__subtext {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #d7e6dd;
+    margin: 0;
+    }
+    .signup-panel__quote {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 22px 24px;
+    max-width: 480px;
+    margin: 0;
+    }
+    .signup-panel__quote p {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+    color: #f2f7f4;
+    }
+    .signup-panel__quote cite {
+    font-style: normal;
+    font-size: 13px;
+    color: #b9d2c4;
+    }
+    .signup-form-panel {
+    flex: 1 1 55%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    box-sizing: border-box;
+    }
+    .signup-form-card {
+    width: 100%;
+    max-width: 420px;
+    }
+    .signup-form-card__title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #16281f;
+    margin: 0 0 8px 0;
+    }
+    .signup-form-card__subtitle {
+    font-size: 15px;
+    color: #6b7a72;
+    margin: 0 0 32px 0;
+    }
+    .form-row {
+    display: flex;
+    gap: 16px;
+    }
+    .form-row .form-field {
+    flex: 1;
+    }
+    .form-field {
+    margin-bottom: 20px;
+    }
+    .form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3b32;
+    margin-bottom: 6px;
+    }
+    .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    }
+    .input-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
+    opacity: 0.55;
+    pointer-events: none;
+    }
+    .input-wrapper input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 40px;
+    font-size: 14px;
+    border: 1px solid #dfe4e0;
+    border-radius: 10px;
+    background: #f9faf8;
+    color: #16281f;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .input-wrapper input::placeholder {
+    color: #a3ada6;
+    }
+    .input-wrapper input:focus {
+    border-color: #2c7a5c;
+    box-shadow: 0 0 0 3px rgba(44, 122, 92, 0.15);
+    background: #ffffff;
+    }
+    .input-toggle {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    line-height: 1;
+    opacity: 0.6;
+    }
+    .input-toggle:hover {
+    opacity: 1;
+    }
+    .form-hint {
+    display: block;
+    font-size: 12px;
+    color: #8a948d;
+    margin-top: 6px;
+    }
+    .submit-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    background: #1e5c46;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .submit-button:hover {
+    background: #164634;
+    }
+    .submit-button:active {
+    transform: scale(0.99);
+    }
+    .signin-prompt {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7a72;
+    margin-top: 20px;
+    }
+    .signin-prompt a {
+    color: #1e5c46;
+    font-weight: 600;
+    text-decoration: none;
+    }
+    .signin-prompt a:hover {
+    text-decoration: underline;
+    }
+    @media (max-width: 900px) {
+    .signup-page {
+        flex-direction: column;
+    }
+    .signup-panel {
+        min-height: auto;
+        padding: 40px 28px;
+    }
+    .signup-panel__headline {
+        font-size: 30px;
+    }
+    .signup-form-panel {
+        padding: 40px 24px;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    }
