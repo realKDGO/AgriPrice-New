@@ -17,7 +17,6 @@ export const adapt = (r) => ({
   ...r,
   status: title(r.status),
   image: r.imageUrl,
-  transport: Number(r.transportBaseCost),
   price: r.price !== undefined ? Number(r.price) : undefined,
   previous: Number(r.previousPrice),
   date: r.date?.slice(0, 10),
@@ -35,13 +34,13 @@ export function AppProvider({ children }) {
       .restore()
       .then(async (r) => {
         if (r.user?.role !== "FARMER") {
-          await authService.logout().catch(() => {});
+          await authService.logout().catch(() => { });
           setSession(null);
           return;
         }
         setSession(r.user);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setAuthLoading(false));
     const end = () => {
       setSession(null);
@@ -100,10 +99,10 @@ export function AppProvider({ children }) {
           : "16px";
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const update = () =>
-      (document.documentElement.dataset.theme =
-        p.theme === "dark" || (p.theme === "system" && media.matches)
-          ? "dark"
-          : "light");
+    (document.documentElement.dataset.theme =
+      p.theme === "dark" || (p.theme === "system" && media.matches)
+        ? "dark"
+        : "light");
     update();
     media.addEventListener("change", update);
     document.documentElement.lang = p.language === "Filipino" ? "fil" : "en";
@@ -112,7 +111,7 @@ export function AppProvider({ children }) {
   async function login(email, password, rememberMe) {
     const u = await authService.login(email, password, rememberMe);
     if (u?.role !== "FARMER") {
-      await authService.logout().catch(() => {});
+      await authService.logout().catch(() => { });
       const error = new Error("This account does not belong to the Farmer portal.");
       error.response = {
         status: 403,

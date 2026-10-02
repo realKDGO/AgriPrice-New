@@ -91,7 +91,7 @@ export default function Home() {
               <div>
                 <h2>Market Insight</h2>
                 <p>
-                  Compare prices and transportation before choosing where to
+                  Compare verified market prices before choosing where to
                   sell.
                 </p>
                 <Link className="button secondary small" to="/farmer/markets">
@@ -121,10 +121,6 @@ export default function Home() {
                       : `${best.market.distanceKm} km`}
                   </strong>
                   <span>Distance</span>
-                </div>
-                <div>
-                  <strong>{money(best.transport)}</strong>
-                  <span>Transportation</span>
                 </div>
               </div>
               <Link className="button w-full" to="/farmer/markets">
