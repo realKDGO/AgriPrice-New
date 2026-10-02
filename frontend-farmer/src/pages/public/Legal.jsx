@@ -64,7 +64,7 @@ const content = {
       ],
       [
         "Market comparisons and profit",
-        "Recommendations rank available markets by estimated net return using quantity, verified selling prices, and estimated costs. Transportation is an estimate. Add relevant expenses and independently confirm sale conditions. Profit margin, when shown, is estimated net earnings divided by gross revenue. These tools do not execute sales or establish sales volume.",
+        "Recommendations rank available markets by estimated net return using quantity, verified selling prices, and estimated costs. Add relevant expenses and independently confirm sale conditions. Profit margin, when shown, is estimated net earnings divided by gross revenue. These tools do not execute sales or establish sales volume.",
       ],
       [
         "Uploads and branding",
