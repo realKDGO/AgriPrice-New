@@ -1,26 +1,27 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 
-/**
- * AuthContext — Manages authentication state globally.
- *
- * Usage (in any child component):
- *   const { user, login, logout } = useAuth();
- */
+const TEMP_BYPASS_LOGIN = true;
+
+const DEMO_ADMIN_USER = {
+  id: "demo-admin",
+  email: "admin@example.org",
+  role: "ADMIN",
+  status: "ACTIVE",
+  firstName: "Admin",
+  lastName: "Demo",
+};
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // null = not logged in
+  const [user, setUser] = useState(TEMP_BYPASS_LOGIN ? DEMO_ADMIN_USER : null);
 
-  /** Call this after a successful login API response */
   const login = (userData) => {
     setUser(userData);
-    // TODO: persist token to localStorage
   };
 
-  /** Clear session on logout */
   const logout = () => {
     setUser(null);
-    // TODO: remove token from localStorage
   };
 
   return (
@@ -30,12 +31,13 @@ export function AuthProvider({ children }) {
   );
 }
 
-/** Convenience hook — use inside any component */
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (!context) {
-    throw new Error('useAuth must be used inside an <AuthProvider>');
+    throw new Error("useAuth must be used inside an <AuthProvider>");
   }
+
   return context;
 }
 
