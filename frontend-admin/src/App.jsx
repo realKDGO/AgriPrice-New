@@ -10,13 +10,26 @@ import Security from "./pages/admin/Security";
 import BackupRecovery from "./pages/admin/BackupRecovery";
 import SystemSettings from "./pages/admin/SystemSettings";
 import Login from "./pages/Login";
-import { logout, restore } from "./services/portalAuth";
+import { login } from "./services/portalAuth";
+
+const TEMP_BYPASS_LOGIN = true;
+
+const DEMO_ADMIN_USER = {
+  id: "demo-admin",
+  email: "admin@example.org",
+  role: "ADMIN",
+  status: "ACTIVE",
+  firstName: "Admin",
+  lastName: "Demo"
+};
 
 function ProtectedAdmin({ user, children }) {
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
+
   if (user.role !== "ADMIN" || user.status !== "ACTIVE") {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
+
   return children;
 }
 
@@ -26,13 +39,16 @@ function AdminRoutes({ user, onSignedIn }) {
       <Route
         path="/login"
         element={
-          user ? (
+          TEMP_BYPASS_LOGIN ? (
+            <Navigate to="/" replace />
+          ) : user ? (
             <Navigate to="/" replace />
           ) : (
             <Login onSignedIn={onSignedIn} />
           )
         }
       />
+
       <Route
         element={
           <ProtectedAdmin user={user}>
@@ -49,24 +65,37 @@ function AdminRoutes({ user, onSignedIn }) {
         <Route path="/backups" element={<BackupRecovery />} />
         <Route path="/settings" element={<SystemSettings />} />
       </Route>
-      <Route path="*" element={<Navigate to="/login" replace />} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
 function App() {
   const [user, setUser] = useState(null);
-  const [checkingSession, setCheckingSession] = useState(true);
+  const [bypassLoading, setBypassLoading] = useState(TEMP_BYPASS_LOGIN);
 
   useEffect(() => {
-    restore()
-      .then((restoredUser) => setUser(restoredUser))
-      .catch(() => setUser(null))
-      .finally(() => setCheckingSession(false));
+    if (!TEMP_BYPASS_LOGIN) {
+      setBypassLoading(false);
+      return;
+    }
+
+    login("admin@example.org", "AgriPriceDemo2026!", true)
+      .then((loggedInUser) => {
+        setUser(loggedInUser);
+      })
+      .catch((error) => {
+        console.error("Temporary Admin login bypass failed:", error);
+        setUser(null);
+      })
+      .finally(() => {
+        setBypassLoading(false);
+      });
   }, []);
 
-  if (checkingSession) {
-    return <div className="admin-session-loading">Checking your session...</div>;
+  if (bypassLoading) {
+    return <div className="admin-session-loading">Loading Admin portal...</div>;
   }
 
   return (
