@@ -121,24 +121,46 @@ try {
           transportBaseCost: m.transport,
         },
       });
-    for (const p of [...history, ...prices])
-      await db.price.upsert({
-        where: { id: stableId(p.id) },
-        update: {},
-        create: {
-          id: stableId(p.id),
-          cropId: stableId(p.cropId),
-          marketId: stableId(p.marketId),
-          price: p.price,
-          previousPrice: p.previous,
-          date: new Date(p.date),
-          status: p.status.toUpperCase(),
-          source: "Development starter dataset supplied with AgriPrice",
-          reviewedAt: p.status === "Verified" ? new Date(p.date) : null,
-          createdBy: mao?.id,
-          reviewedBy: p.status === "Verified" ? mao?.id : null,
+    for (const p of [...history, ...prices]) {
+      const cropId = stableId(p.cropId);
+      const marketId = stableId(p.marketId);
+      const date = new Date(p.date);
+
+      const existing = await db.price.findFirst({
+        where: {
+          cropId,
+          marketId,
+          date,
         },
       });
+
+      const data = {
+        price: p.price,
+        previousPrice: p.previous,
+        status: p.status.toUpperCase(),
+        source: "Development starter dataset supplied with AgriPrice",
+        reviewedAt: p.status === "Verified" ? date : null,
+        createdBy: mao?.id,
+        reviewedBy: p.status === "Verified" ? mao?.id : null,
+      };
+
+      if (existing) {
+        await db.price.update({
+          where: { id: existing.id },
+          data,
+        });
+      } else {
+        await db.price.create({
+          data: {
+            id: stableId(p.id),
+            cropId,
+            marketId,
+            ...data,
+            date,
+          },
+        });
+      }
+    }
     const demoPassword = process.env.SEED_FARMER_PASSWORD;
     if (!demoPassword)
       throw new Error("SEED_FARMER_PASSWORD is required for presentation data.");
@@ -172,7 +194,7 @@ try {
           const predictedPrice =
             Math.round(
               (baseline + horizonMonths * 0.65 + Math.sin(cropIndex + horizonMonths) * 1.4) *
-                100,
+              100,
             ) / 100;
           const targetDate = new Date("2026-10-01");
           targetDate.setUTCMonth(targetDate.getUTCMonth() + horizonMonths - 1);
@@ -183,7 +205,7 @@ try {
                 marketId: stableId(market.id),
                 forecastDate,
                 horizonMonths,
-                modelVersion: "monthly-linear-v1",
+                modelVersion: "monthly-linear-trend-v1",
               },
             },
             update: { predictedPrice, targetDate, status: "AVAILABLE" },
@@ -194,7 +216,7 @@ try {
               forecastDate,
               targetDate,
               predictedPrice,
-              modelVersion: "monthly-linear-v1",
+              modelVersion: "monthly-linear-trend-v1",
               inputCount: 12,
               status: "AVAILABLE",
             },

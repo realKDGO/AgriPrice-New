@@ -11,10 +11,10 @@ export default function Profit() {
   const { data, notify } = useApp();
   const [params] = useSearchParams();
   const [crop, setCrop] = useState(
-      data.crops.some((c) => c.id === params.get("crop"))
-        ? params.get("crop")
-        : data.settings.defaultCrop || "",
-    ),
+    data.crops.some((c) => c.id === params.get("crop"))
+      ? params.get("crop")
+      : data.settings.defaultCrop || "",
+  ),
     [market, setMarket] = useState(
       data.markets.some((m) => m.id === params.get("market"))
         ? params.get("market")
@@ -106,7 +106,7 @@ export default function Profit() {
               : !Number.isFinite(Number(price)) || Number(price) <= 0
                 ? "Selling price must be greater than ₱0."
                 : expenses !== "" &&
-                    (!Number.isFinite(Number(expenses)) || Number(expenses) < 0)
+                  (!Number.isFinite(Number(expenses)) || Number(expenses) < 0)
                   ? "Other expenses cannot be negative."
                   : "";
   const showValidationToast = () => {
@@ -166,8 +166,8 @@ export default function Profit() {
             />
           </div>
           <p className="muted mt-4">
-            Transportation is estimated separately. Include packaging, labor,
-            and other sale costs under Other Expenses.
+            Include transportation, packaging, labor, and other sale costs under
+            Other Expenses.
           </p>
           <button
             className="button secondary mt-6"
@@ -195,7 +195,6 @@ export default function Profit() {
               <dl className="result-lines">
                 {[
                   ["Gross Sales", result.revenue],
-                  ["Transportation Cost", result.transport],
                   ["Other Expenses", result.expenses],
                   ["Total Expenses", result.totalExpenses],
                 ].map(([label, value]) => (
@@ -228,7 +227,7 @@ export default function Profit() {
               {busy
                 ? "Calculating…"
                 : validationMessage ||
-                  "Enter valid sale details to calculate earnings."}
+                "Enter valid sale details to calculate earnings."}
             </p>
           )}
         </Panel>

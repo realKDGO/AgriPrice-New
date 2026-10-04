@@ -30,7 +30,6 @@ const Filipino = {
   Quantity: "Dami",
   "Selling Price / kg": "Presyo ng Benta / kg",
   "Other Expenses": "Iba Pang Gastusin",
-  "Transportation Cost": "Gastos sa Transportasyon",
   "Gross Revenue": "Kabuuang Benta",
   "Total Expenses": "Kabuuang Gastusin",
   "Estimated Net Earnings": "Tinatayang Netong Kita",

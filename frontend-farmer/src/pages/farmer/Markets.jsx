@@ -60,7 +60,7 @@ export default function Markets() {
     <>
       <PageHead
         title="Market Recommendation"
-        description="Compare markets using available prices and estimated transport costs."
+        description="Compare markets using available verified prices."
       />
       <Panel>
         <form className="recommendation-form" onSubmit={search} noValidate>
@@ -119,9 +119,7 @@ export default function Markets() {
             <div className="recommendation-stats">
               {[
                 ["Selling Price / kg", top.price],
-                ["Transportation Estimate", top.transport],
                 ["Gross Revenue", top.revenue],
-                ["Estimated Net Return", top.net],
               ].map(([label, value]) => (
                 <div key={label}>
                   <span>{label}</span>
@@ -156,19 +154,9 @@ export default function Markets() {
                   render: (r) => money(r.price),
                 },
                 {
-                  key: "transport",
-                  label: "Transportation",
-                  render: (r) => money(r.transport),
-                },
-                {
                   key: "revenue",
                   label: "Gross Revenue",
                   render: (r) => money(r.revenue),
-                },
-                {
-                  key: "net",
-                  label: "Estimated Net Return",
-                  render: (r) => money(r.net),
                 },
               ]}
             />
