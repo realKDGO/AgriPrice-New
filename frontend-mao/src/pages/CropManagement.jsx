@@ -1,12 +1,12 @@
-import React from "react";
-<img src={agriLogo} alt="AgriPrice Logo" style={styles.logoImage} />
-
+import React, { useState } from "react";
 import { TbLayoutDashboard, TbFileAnalytics, TbBell, TbArrowRight } from "react-icons/tb";
 import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuEye, LuPencil, LuArchive } from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('crop-management');
+
   const cropData = [
     { id: 1, crop: 'Rice', category: 'Grain', unit: 'kg', status: 'Active' },
     { id: 2, crop: 'Tomato', category: 'Vegetable', unit: 'kg', status: 'Active' },
@@ -23,42 +23,73 @@ export default function App() {
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
-            <img src={agriLogo} alt="AgriPrice Logo" style={styles.logoImage} />
             <span style={styles.brandText}>AgriPrice</span>
           </div>
 
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#dashboard" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }}
+                style={activeTab === 'dashboard' ? styles.activeNavLink : styles.navLink}
+              >
                 <TbLayoutDashboard size={20} />
                 <span>Dashboard</span>
               </a>
-              <a href="#" style={styles.activeNavLink}>
+              <a 
+                href="#crop-management" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('crop-management'); }}
+                style={activeTab === 'crop-management' ? styles.activeNavLink : styles.navLink}
+              >
                 <LuSprout size={20} />
                 <span>Crop Management</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#market-management" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('market-management'); }}
+                style={activeTab === 'market-management' ? styles.activeNavLink : styles.navLink}
+              >
                 <LuStore size={20} />
                 <span>Market Management</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#crop-prices" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('crop-prices'); }}
+                style={activeTab === 'crop-prices' ? styles.activeNavLink : styles.navLink}
+              >
                 <LuTags size={20} />
                 <span>Crop Prices</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#price-validation" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('price-validation'); }}
+                style={activeTab === 'price-validation' ? styles.activeNavLink : styles.navLink}
+              >
                 <VscWorkspaceTrusted size={20} />
                 <span>Price Validation</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#historical-records" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('historical-records'); }}
+                style={activeTab === 'historical-records' ? styles.activeNavLink : styles.navLink}
+              >
                 <GoHistory size={20} />
                 <span>Historical Records</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#forecast-information" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('forecast-information'); }}
+                style={activeTab === 'forecast-information' ? styles.activeNavLink : styles.navLink}
+              >
                 <LuChartNoAxesCombined size={20} />
                 <span>Forecast Information</span>
               </a>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#reports-analytics" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('reports-analytics'); }}
+                style={activeTab === 'reports-analytics' ? styles.activeNavLink : styles.navLink}
+              >
                 <TbFileAnalytics size={20} />
                 <span>Reports & Analytics</span>
               </a>
@@ -68,7 +99,11 @@ export default function App() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
+              <a 
+                href="#settings" 
+                onClick={(e) => { e.preventDefault(); setActiveTab('settings'); }}
+                style={activeTab === 'settings' ? styles.activeNavLink : styles.navLink}
+              >
                 <LuSettings size={20} />
                 <span>Settings</span>
               </a>
@@ -77,7 +112,7 @@ export default function App() {
         </div>
 
         <div style={styles.sidebarBottom}>
-          <a href="#" style={styles.logoutLink}>
+          <a href="#signout" onClick={(e) => e.preventDefault()} style={styles.logoutLink}>
             <LuLogOut size={20} />
             <span>Sign Out</span>
           </a>
@@ -86,7 +121,17 @@ export default function App() {
 
       <div style={styles.mainContent}>
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Crop Management</h1>
+          <h1 style={styles.headerTitle}>
+            {activeTab === 'crop-management' && 'Crop Management'}
+            {activeTab === 'dashboard' && 'MAO Dashboard'}
+            {activeTab === 'market-management' && 'Market Management'}
+            {activeTab === 'crop-prices' && 'Crop Prices'}
+            {activeTab === 'price-validation' && 'Price Validation'}
+            {activeTab === 'historical-records' && 'Historical Records'}
+            {activeTab === 'forecast-information' && 'Forecast Information'}
+            {activeTab === 'reports-analytics' && 'Reports & Analytics'}
+            {activeTab === 'settings' && 'Settings'}
+          </h1>
           <div style={styles.headerRight}>
             <button style={styles.notifBtn}>
               <TbBell size={18} color="#374151" />
@@ -107,7 +152,6 @@ export default function App() {
               <input 
                 type="text" 
                 placeholder="Search records" 
-                readOnly 
                 style={styles.searchInput} 
               />
             </div>
@@ -208,12 +252,6 @@ const styles = {
     gap: '12px',
     padding: '24px 20px 20px 20px',
   },
-  logoImage: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
   brandText: {
     fontWeight: 'bold',
     fontSize: '20px',
@@ -246,6 +284,7 @@ const styles = {
     color: '#c2d1c9',
     textDecoration: 'none',
     fontSize: '14px',
+    cursor: 'pointer',
   },
   activeNavLink: {
     display: 'flex',
@@ -258,6 +297,7 @@ const styles = {
     fontWeight: '500',
     textDecoration: 'none',
     fontSize: '14px',
+    cursor: 'pointer',
   },
   sidebarBottom: {
     padding: '16px 20px 24px 20px',
@@ -272,6 +312,7 @@ const styles = {
     color: '#c2d1c9',
     textDecoration: 'none',
     fontSize: '14px',
+    cursor: 'pointer',
   },
   mainContent: {
     flex: 1,
