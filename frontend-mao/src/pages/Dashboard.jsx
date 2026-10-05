@@ -2,21 +2,24 @@ import React from "react";
 import { Link } from "react-router-dom";
 import agriLogo from "./AgriPrice_White.png";
 
-import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
-import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuEye, LuPencil, LuArchive } from "react-icons/lu";
+import { TbLayoutDashboard, TbFileAnalytics, TbBell, TbTrendingUp, TbUsers } from "react-icons/tb";
+import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuArrowUpRight } from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
-export default function CropManagement() {
-  const cropData = [
-    { id: 1, crop: 'Rice', category: 'Grain', unit: 'kg', status: 'Active' },
-    { id: 2, crop: 'Tomato', category: 'Vegetable', unit: 'kg', status: 'Active' },
-    { id: 3, crop: 'Eggplant', category: 'Vegetable', unit: 'kg', status: 'Active' },
-    { id: 4, crop: 'Corn', category: 'Grain', unit: 'kg', status: 'Active' },
-    { id: 5, crop: 'Onion', category: 'Vegetable', unit: 'kg', status: 'Active' },
-    { id: 6, crop: 'Banana', category: 'Fruit', unit: 'kg', status: 'Active' },
-    { id: 7, crop: 'Cabbage', category: 'Vegetable', unit: 'kg', status: 'Active' },
-    { id: 8, crop: 'Garlic', category: 'Vegetable', unit: 'kg', status: 'Active' },
+export default function Dashboard() {
+  const statsData = [
+    { title: 'Total Crops Tracked', value: '24', change: '+12% from last month', icon: <LuSprout size={20} color="#1b6b39" /> },
+    { title: 'Active Markets', value: '18', change: '+4 new markets', icon: <LuStore size={20} color="#1b6b39" /> },
+    { title: 'Pending Validations', value: '5', change: 'Requires review', icon: <VscWorkspaceTrusted size={20} color="#d97706" /> },
+    { title: 'Registered Farmers', value: '1,420', change: '+85 this week', icon: <TbUsers size={20} color="#1b6b39" /> },
+  ];
+
+  const recentPrices = [
+    { id: 1, crop: 'Rice (Well-Milled)', market: 'Antipolo Public Market', price: '₱45.00 /kg', trend: '+₱2.00', status: 'Verified' },
+    { id: 2, crop: 'Tomato', market: 'Teresa Public Market', price: '₱65.00 /kg', trend: '-₱5.00', status: 'Pending' },
+    { id: 3, crop: 'Eggplant', market: 'Cainta Public Market', price: '₱50.00 /kg', trend: '₱0.00', status: 'Verified' },
+    { id: 4, crop: 'Corn (Yellow)', market: 'Binangonan Market', price: '₱38.00 /kg', trend: '+₱1.50', status: 'Verified' },
   ];
 
   return (
@@ -31,11 +34,11 @@ export default function CropManagement() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <Link to="/dashboard" style={styles.navLink}>
+              <Link to="/dashboard" style={styles.activeNavLink}>
                 <TbLayoutDashboard size={20} />
                 <span>Dashboard</span>
               </Link>
-              <Link to="/crop-management" style={styles.activeNavLink}>
+              <Link to="/crop-management" style={styles.navLink}>
                 <LuSprout size={20} />
                 <span>Crop Management</span>
               </Link>
@@ -87,7 +90,7 @@ export default function CropManagement() {
 
       <div style={styles.mainContent}>
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Crop Management</h1>
+          <h1 style={styles.headerTitle}>Dashboard Overview</h1>
           <div style={styles.headerRight}>
             <button style={styles.notifBtn}>
               <TbBell size={18} color="#374151" />
@@ -96,79 +99,64 @@ export default function CropManagement() {
         </header>
 
         <main style={styles.mainBody}>
-          <div style={styles.banner}>
-            <p style={styles.bannerText}>Maintain agricultural records used throughout AgriPrice.</p>
-            <button style={styles.bannerBtn}>
-              <span>+ Add crop</span>
-            </button>
+          <div style={styles.welcomeBanner}>
+            <div>
+              <h2 style={styles.welcomeTitle}>Welcome back, Admin! 👋</h2>
+              <p style={styles.bannerText}>Here's the latest agricultural market updates and price trends today.</p>
+            </div>
+            <Link to="/reports-analytics" style={styles.bannerBtn}>
+              <TbTrendingUp size={16} />
+              <span>View Analytics</span>
+            </Link>
           </div>
 
-          <div style={styles.filterCard}>
-            <div style={styles.searchWrapper}>
-              <input 
-                type="text" 
-                placeholder="Search records" 
-                readOnly 
-                style={styles.searchInput} 
-              />
-            </div>
-            <div style={styles.filtersRight}>
-              <div style={styles.filterGroup}>
-                <span style={styles.filterLabel}>Status</span>
-                <div style={styles.dropdownBox}>
-                  <span>All Statuses</span>
-                  <span style={styles.dropdownArrow}>▼</span>
+          <div style={styles.statsGrid}>
+            {statsData.map((stat, index) => (
+              <div key={index} style={styles.statCard}>
+                <div style={styles.statHeader}>
+                  <span style={styles.statTitle}>{stat.title}</span>
+                  <div style={styles.statIconWrapper}>{stat.icon}</div>
+                </div>
+                <div style={styles.statBody}>
+                  <h3 style={styles.statValue}>{stat.value}</h3>
+                  <span style={styles.statChange}>{stat.change}</span>
                 </div>
               </div>
-              <div style={styles.filterGroup}>
-                <span style={styles.filterLabel}>Category</span>
-                <div style={styles.dropdownBox}>
-                  <span>All categories</span>
-                  <span style={styles.dropdownArrow}>▼</span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div style={styles.tableCard}>
             <div style={styles.tableHeaderContainer}>
-              <h3 style={styles.tableSectionTitle}>8 records</h3>
-              <span style={styles.tableSubTitle}>Current records</span>
+              <h3 style={styles.tableSectionTitle}>Recent Price Submissions</h3>
+              <Link to="/crop-prices" style={styles.viewAllLink}>
+                <span>View all</span>
+                <LuArrowUpRight size={14} />
+              </Link>
             </div>
 
             <table style={styles.table}>
               <thead>
                 <tr style={styles.trHead}>
                   <th style={styles.th}>CROP</th>
-                  <th style={styles.th}>CATEGORY</th>
-                  <th style={styles.th}>UNIT</th>
+                  <th style={styles.th}>MARKET</th>
+                  <th style={styles.th}>CURRENT PRICE</th>
+                  <th style={styles.th}>TREND</th>
                   <th style={styles.th}>STATUS</th>
-                  <th style={styles.thAction}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
-                {cropData.map((item, index) => (
-                  <tr key={item.id} style={index === cropData.length - 1 ? styles.trBodyLast : styles.trBody}>
+                {recentPrices.map((item, index) => (
+                  <tr key={item.id} style={index === recentPrices.length - 1 ? styles.trBodyLast : styles.trBody}>
                     <td style={{...styles.td, fontWeight: '500', color: '#111827'}}>{item.crop}</td>
-                    <td style={styles.td}>{item.category}</td>
-                    <td style={styles.td}>{item.unit}</td>
-                    <td style={styles.td}>
-                      <span style={styles.activeBadge}>{item.status}</span>
+                    <td style={styles.td}>{item.market}</td>
+                    <td style={styles.td}>{item.price}</td>
+                    <td style={{...styles.td, color: item.trend.includes('+') ? '#137333' : item.trend.includes('-') ? '#c5221f' : '#5f7161'}}>
+                      {item.trend}
                     </td>
-                    <td style={styles.tdAction}>
-                      <div style={styles.actionButtonsWrapper}>
-                        <button style={styles.actionBtn}>
-                          <LuEye size={14} color="#4b5563" />
-                          <span>View</span>
-                        </button>
-                        <button style={styles.actionBtn}>
-                          <LuPencil size={14} color="#4b5563" />
-                          <span>Edit</span>
-                        </button>
-                        <button style={styles.actionIconBtn}>
-                          <LuArchive size={14} color="#4b5563" />
-                        </button>
-                      </div>
+                    <td style={styles.td}>
+                      <span style={item.status === 'Verified' ? styles.verifiedBadge : styles.pendingBadge}>
+                        {item.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -315,14 +303,22 @@ const styles = {
     padding: '24px 32px 32px 32px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '24px',
   },
-  banner: {
-    backgroundColor: 'transparent',
-    padding: '0',
+  welcomeBanner: {
+    backgroundColor: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: '12px',
+    padding: '24px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  welcomeTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#111827',
+    margin: '0 0 6px 0',
   },
   bannerText: {
     fontSize: '14px',
@@ -334,68 +330,61 @@ const styles = {
     color: '#ffffff',
     border: 'none',
     borderRadius: '6px',
-    padding: '8px 16px',
+    padding: '10px 16px',
     fontSize: '13px',
     fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
+    textDecoration: 'none',
     cursor: 'pointer',
   },
-  filterCard: {
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+  },
+  statCard: {
     backgroundColor: '#ffffff',
     border: '1px solid #e5e7eb',
     borderRadius: '10px',
-    padding: '16px 20px',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  statHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '20px',
   },
-  searchWrapper: {
-    flex: 1,
+  statTitle: {
+    fontSize: '12px',
+    fontWeight: '500',
+    color: '#6b7280',
   },
-  searchInput: {
-    width: '100%',
-    padding: '8px 12px',
-    backgroundColor: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: '6px',
-    fontSize: '13px',
-    color: '#374151',
-    outline: 'none',
-  },
-  filtersRight: {
+  statIconWrapper: {
+    backgroundColor: '#e6f4ea',
+    padding: '8px',
+    borderRadius: '8px',
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    justifyContent: 'center',
   },
-  filterGroup: {
+  statBody: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
   },
-  filterLabel: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#6b7280',
+  statValue: {
+    fontSize: '22px',
+    fontWeight: '700',
+    color: '#111827',
+    margin: 0,
   },
-  dropdownBox: {
-    backgroundColor: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: '6px',
-    padding: '6px 12px',
-    fontSize: '13px',
-    color: '#374151',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minWidth: '130px',
-    cursor: 'pointer',
-  },
-  dropdownArrow: {
-    fontSize: '10px',
-    color: '#9ca3af',
+  statChange: {
+    fontSize: '12px',
+    color: '#0d9488',
   },
   tableCard: {
     backgroundColor: '#ffffff',
@@ -415,9 +404,14 @@ const styles = {
     color: '#111827',
     margin: 0,
   },
-  tableSubTitle: {
-    fontSize: '12px',
-    color: '#9ca3af',
+  viewAllLink: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: '13px',
+    fontWeight: '500',
+    color: '#1b6b39',
+    textDecoration: 'none',
   },
   table: {
     width: '100%',
@@ -435,14 +429,6 @@ const styles = {
     padding: '12px 16px',
     letterSpacing: '0.5px',
   },
-  thAction: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#5f7161',
-    padding: '12px 24px 12px 16px',
-    letterSpacing: '0.5px',
-    textAlign: 'right',
-  },
   trBody: {
     borderBottom: '1px solid #f3f4f6',
   },
@@ -454,13 +440,7 @@ const styles = {
     color: '#374151',
     padding: '16px',
   },
-  tdAction: {
-    fontSize: '13px',
-    color: '#374151',
-    padding: '16px 24px 16px 16px',
-    textAlign: 'right',
-  },
-  activeBadge: {
+  verifiedBadge: {
     backgroundColor: '#e6f4ea',
     color: '#137333',
     fontSize: '11px',
@@ -468,34 +448,12 @@ const styles = {
     padding: '3px 10px',
     borderRadius: '12px',
   },
-  actionButtonsWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: '8px',
-  },
-  actionBtn: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    color: '#374151',
-    padding: '5px 10px',
-    borderRadius: '6px',
-    fontSize: '12px',
+  pendingBadge: {
+    backgroundColor: '#fef3c7',
+    color: '#92400e',
+    fontSize: '11px',
     fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px',
-    cursor: 'pointer',
-  },
-  actionIconBtn: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    color: '#374151',
-    padding: '5px 8px',
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
+    padding: '3px 10px',
+    borderRadius: '12px',
   },
 };
