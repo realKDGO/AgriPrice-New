@@ -1,15 +1,26 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import agriLogo from "./AgriPrice_White.png";
 
-import { TbLayoutDashboard, TbFileAnalytics, TbBell, TbArrowRight } from "react-icons/tb";
-import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut } from "react-icons/lu";
+import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
+import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuEye, LuPencil, LuArchive } from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
-export default function Dashboard() {
+export default function CropManagement() {
+  const cropData = [
+    { id: 1, crop: 'Rice', category: 'Grain', unit: 'kg', status: 'Active' },
+    { id: 2, crop: 'Tomato', category: 'Vegetable', unit: 'kg', status: 'Active' },
+    { id: 3, crop: 'Eggplant', category: 'Vegetable', unit: 'kg', status: 'Active' },
+    { id: 4, crop: 'Corn', category: 'Grain', unit: 'kg', status: 'Active' },
+    { id: 5, crop: 'Onion', category: 'Vegetable', unit: 'kg', status: 'Active' },
+    { id: 6, crop: 'Banana', category: 'Fruit', unit: 'kg', status: 'Active' },
+    { id: 7, crop: 'Cabbage', category: 'Vegetable', unit: 'kg', status: 'Active' },
+    { id: 8, crop: 'Garlic', category: 'Vegetable', unit: 'kg', status: 'Active' },
+  ];
+
   return (
     <div style={styles.container}>
-
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -20,64 +31,63 @@ export default function Dashboard() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.activeNavLink}>
+              <Link to="/dashboard" style={styles.navLink}>
                 <TbLayoutDashboard size={20} />
                 <span>Dashboard</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/crop-management" style={styles.activeNavLink}>
                 <LuSprout size={20} />
                 <span>Crop Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/market-management" style={styles.navLink}>
                 <LuStore size={20} />
                 <span>Market Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/crop-prices" style={styles.navLink}>
                 <LuTags size={20} />
                 <span>Crop Prices</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/price-validation" style={styles.navLink}>
                 <VscWorkspaceTrusted size={20} />
                 <span>Price Validation</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/historical-records" style={styles.navLink}>
                 <GoHistory size={20} />
                 <span>Historical Records</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/forecast-information" style={styles.navLink}>
                 <LuChartNoAxesCombined size={20} />
                 <span>Forecast Information</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/reports-analytics" style={styles.navLink}>
                 <TbFileAnalytics size={20} />
                 <span>Reports & Analytics</span>
-              </a>
+              </Link>
             </nav>
           </div>
 
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
+              <Link to="/settings" style={styles.navLink}>
                 <LuSettings size={20} />
                 <span>Settings</span>
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
 
         <div style={styles.sidebarBottom}>
-          <a href="#" style={styles.logoutLink}>
+          <Link to="/" style={styles.logoutLink}>
             <LuLogOut size={20} />
             <span>Sign Out</span>
-          </a>
+          </Link>
         </div>
       </aside>
 
       <div style={styles.mainContent}>
-
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>MAO Dashboard</h1>
+          <h1 style={styles.headerTitle}>Crop Management</h1>
           <div style={styles.headerRight}>
             <button style={styles.notifBtn}>
               <TbBell size={18} color="#374151" />
@@ -86,123 +96,87 @@ export default function Dashboard() {
         </header>
 
         <main style={styles.mainBody}>
-
           <div style={styles.banner}>
-            <p style={styles.bannerText}>Keep Jala-Jala's crop information accurate and up to date.</p>
+            <p style={styles.bannerText}>Maintain agricultural records used throughout AgriPrice.</p>
             <button style={styles.bannerBtn}>
-              <span>Record a price</span>
-              <TbArrowRight size={16} strokeWidth={2.5} />
+              <span>+ Add crop</span>
             </button>
           </div>
 
-          <div style={styles.rowGrid4}>
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Active crops</span>
-                <LuSprout size={18} color="#6b7280" />
-              </div>
-              <h3 style={styles.cardValue}>8</h3>
+          <div style={styles.filterCard}>
+            <div style={styles.searchWrapper}>
+              <input 
+                type="text" 
+                placeholder="Search records" 
+                readOnly 
+                style={styles.searchInput} 
+              />
             </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Monitored markets</span>
-                <LuStore size={18} color="#6b7280" />
+            <div style={styles.filtersRight}>
+              <div style={styles.filterGroup}>
+                <span style={styles.filterLabel}>Status</span>
+                <div style={styles.dropdownBox}>
+                  <span>All Statuses</span>
+                  <span style={styles.dropdownArrow}>▼</span>
+                </div>
               </div>
-              <h3 style={styles.cardValue}>7</h3>
-            </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Verified price records</span>
-                <LuTags size={18} color="#6b7280" />
+              <div style={styles.filterGroup}>
+                <span style={styles.filterLabel}>Category</span>
+                <div style={styles.dropdownBox}>
+                  <span>All categories</span>
+                  <span style={styles.dropdownArrow}>▼</span>
+                </div>
               </div>
-              <h3 style={styles.cardValue}>56</h3>
-            </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Awaiting validation</span>
-                <VscWorkspaceTrusted size={18} color="#6b7280" />
-              </div>
-              <h3 style={styles.cardValue}>2</h3>
-              <span style={styles.cardSubText}>Review before public display</span>
             </div>
           </div>
 
           <div style={styles.tableCard}>
             <div style={styles.tableHeaderContainer}>
-              <h3 style={styles.tableSectionTitle}>Prices needing attention</h3>
-              <a href="#" style={styles.reviewQueueLink}>
-                <span>Review queue</span>
-                <span style={styles.linkDivider}>
-                  <TbArrowRight size={16} strokeWidth={2.5} />
-                </span>
-              </a>
+              <h3 style={styles.tableSectionTitle}>8 records</h3>
+              <span style={styles.tableSubTitle}>Current records</span>
             </div>
 
             <table style={styles.table}>
               <thead>
                 <tr style={styles.trHead}>
                   <th style={styles.th}>CROP</th>
-                  <th style={styles.th}>MARKET</th>
-                  <th style={styles.th}>SUBMITTED PRICE / KG</th>
+                  <th style={styles.th}>CATEGORY</th>
+                  <th style={styles.th}>UNIT</th>
                   <th style={styles.th}>STATUS</th>
                   <th style={styles.thAction}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
-                <tr style={styles.trBody}>
-                  <td style={styles.td}>Tomato</td>
-                  <td style={styles.td}>Teresa Public Market</td>
-                  <td style={styles.td}>₱65.00</td>
-                  <td style={styles.td}>
-                    <span style={styles.pendingBadge}>Pending</span>
-                  </td>
-                  <td style={styles.tdAction}>
-                    <button style={styles.reviewBtn}>Review</button>
-                  </td>
-                </tr>
-                <tr style={styles.trBodyLast}>
-                  <td style={styles.td}>Rice</td>
-                  <td style={styles.td}>Antipolo Public Market</td>
-                  <td style={styles.td}>₱47.00</td>
-                  <td style={styles.td}>
-                    <span style={styles.pendingBadge}>Pending</span>
-                  </td>
-                  <td style={styles.tdAction}>
-                    <button style={styles.reviewBtn}>Review</button>
-                  </td>
-                </tr>
+                {cropData.map((item, index) => (
+                  <tr key={item.id} style={index === cropData.length - 1 ? styles.trBodyLast : styles.trBody}>
+                    <td style={{...styles.td, fontWeight: '500', color: '#111827'}}>{item.crop}</td>
+                    <td style={styles.td}>{item.category}</td>
+                    <td style={styles.td}>{item.unit}</td>
+                    <td style={styles.td}>
+                      <span style={styles.activeBadge}>{item.status}</span>
+                    </td>
+                    <td style={styles.tdAction}>
+                      <div style={styles.actionButtonsWrapper}>
+                        <button style={styles.actionBtn}>
+                          <LuEye size={14} color="#4b5563" />
+                          <span>View</span>
+                        </button>
+                        <button style={styles.actionBtn}>
+                          <LuPencil size={14} color="#4b5563" />
+                          <span>Edit</span>
+                        </button>
+                        <button style={styles.actionIconBtn}>
+                          <LuArchive size={14} color="#4b5563" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-
-          <div style={styles.rowGrid2}>
-            <div style={styles.infoCard}>
-              <h3 style={styles.infoCardTitle}>Maintain agricultural information</h3>
-              <p style={styles.infoCardText}>
-                Crop and market details are shared across the farmer tools.<br />
-                New prices require validation before they appear publicly.
-              </p>
-              <a href="#" style={styles.infoCardLink}>
-                <span>Manage crops</span>
-                <span style={styles.linkDivider}>
-                  <TbArrowRight size={16} strokeWidth={2.5} />
-                </span>
-              </a>
-            </div>
-
-            <div style={styles.infoCard}>
-              <h3 style={styles.infoCardTitle}>Latest data activity</h3>
-              <p style={styles.infoCardSubtitle}>Reviewed price submissions</p>
-              <p style={styles.infoCardMeta}>Elena Reyes · 2026-09-05 08:00</p>
-            </div>
-          </div>
-
         </main>
       </div>
-
     </div>
   );
 }
@@ -338,14 +312,14 @@ const styles = {
     cursor: 'pointer',
   },
   mainBody: {
-    padding: '16px 32px 32px 32px',
+    padding: '24px 32px 32px 32px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px',
+    gap: '20px',
   },
   banner: {
     backgroundColor: 'transparent',
-    padding: '4px 0',
+    padding: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -368,49 +342,66 @@ const styles = {
     gap: '6px',
     cursor: 'pointer',
   },
-  rowGrid4: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
+  filterCard: {
+    backgroundColor: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: '10px',
+    padding: '16px 20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: '20px',
   },
-  card: {
-    backgroundColor: '#ffffff',
-    padding: '20px',
-    borderRadius: '10px',
+  searchWrapper: {
+    flex: 1,
+  },
+  searchInput: {
+    width: '100%',
+    padding: '8px 12px',
+    backgroundColor: '#f9fafb',
     border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    fontSize: '13px',
+    color: '#374151',
+    outline: 'none',
+  },
+  filtersRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+  },
+  filterGroup: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: '90px',
+    gap: '4px',
   },
-  cardHeaderTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cardTitle: {
-    fontSize: '13px',
-    color: '#6b7280',
-    fontWeight: '400',
-    margin: 0,
-  },
-  cardValue: {
-    fontSize: '28px',
-    fontWeight: '600',
-    color: '#111827',
-    marginTop: '10px',
-    marginBottom: 0,
-  },
-  cardSubText: {
+  filterLabel: {
     fontSize: '11px',
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  dropdownBox: {
+    backgroundColor: '#f9fafb',
+    border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    padding: '6px 12px',
+    fontSize: '13px',
+    color: '#374151',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minWidth: '130px',
+    cursor: 'pointer',
+  },
+  dropdownArrow: {
+    fontSize: '10px',
     color: '#9ca3af',
-    marginTop: '4px',
   },
   tableCard: {
     backgroundColor: '#ffffff',
     border: '1px solid #e5e7eb',
     borderRadius: '10px',
-    padding: '20px 24px 8px 24px',
+    padding: '20px 24px 12px 24px',
   },
   tableHeaderContainer: {
     display: 'flex',
@@ -424,18 +415,9 @@ const styles = {
     color: '#111827',
     margin: 0,
   },
-  reviewQueueLink: {
-    fontSize: '13px',
-    color: '#1b6b39',
-    textDecoration: 'none',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  linkDivider: {
-    display: 'flex',
-    alignItems: 'center',
+  tableSubTitle: {
+    fontSize: '12px',
+    color: '#9ca3af',
   },
   table: {
     width: '100%',
@@ -444,6 +426,7 @@ const styles = {
   },
   trHead: {
     backgroundColor: '#f7f8f6',
+    borderBottom: '1px solid #e5e7eb',
   },
   th: {
     fontSize: '11px',
@@ -477,67 +460,42 @@ const styles = {
     padding: '16px 24px 16px 16px',
     textAlign: 'right',
   },
-  pendingBadge: {
-    backgroundColor: '#fef3c7',
-    color: '#b45309',
+  activeBadge: {
+    backgroundColor: '#e6f4ea',
+    color: '#137333',
     fontSize: '11px',
     fontWeight: '500',
     padding: '3px 10px',
     borderRadius: '12px',
   },
-  reviewBtn: {
+  actionButtonsWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: '8px',
+  },
+  actionBtn: {
     backgroundColor: '#ffffff',
     border: '1px solid #e5e7eb',
-    color: '#111827',
-    padding: '6px 14px',
+    color: '#374151',
+    padding: '5px 10px',
     borderRadius: '6px',
     fontSize: '12px',
     fontWeight: '500',
-    cursor: 'pointer',
-  },
-  rowGrid2: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '20px',
-  },
-  infoCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '24px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  infoCardTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: '0 0 8px 0',
-  },
-  infoCardText: {
-    fontSize: '13px',
-    color: '#4b5563',
-    lineHeight: '1.5',
-    margin: '0 0 16px 0',
-  },
-  infoCardSubtitle: {
-    fontSize: '13px',
-    color: '#4b5563',
-    margin: '0 0 24px 0',
-  },
-  infoCardMeta: {
-    fontSize: '12px',
-    color: '#9ca3af',
-    margin: 0,
-  },
-  infoCardLink: {
-    fontSize: '13px',
-    color: '#1b6b39',
-    textDecoration: 'none',
-    fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '5px',
+    cursor: 'pointer',
+  },
+  actionIconBtn: {
+    backgroundColor: '#ffffff',
+    border: '1px solid #e5e7eb',
+    color: '#374151',
+    padding: '5px 8px',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
   },
 };

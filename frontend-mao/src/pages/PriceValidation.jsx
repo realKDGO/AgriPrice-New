@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import agriLogo from "./AgriPrice_White.png";
 
 import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
@@ -6,7 +7,7 @@ import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut 
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
-export default function App() {
+export default function PriceValidation() {
   const [activeTab, setActiveTab] = useState('Pending');
 
   const pendingData = [
@@ -45,57 +46,57 @@ export default function App() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
+              <Link to="/dashboard" style={styles.navLink}>
                 <TbLayoutDashboard size={20} />
                 <span>Dashboard</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/crop-management" style={styles.navLink}>
                 <LuSprout size={20} />
                 <span>Crop Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/market-management" style={styles.navLink}>
                 <LuStore size={20} />
                 <span>Market Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/crop-prices" style={styles.navLink}>
                 <LuTags size={20} />
                 <span>Crop Prices</span>
-              </a>
-              <a href="#" style={styles.activeNavLink}>
+              </Link>
+              <Link to="/price-validation" style={styles.activeNavLink}>
                 <VscWorkspaceTrusted size={20} />
                 <span>Price Validation</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/historical-records" style={styles.navLink}>
                 <GoHistory size={20} />
                 <span>Historical Records</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/forecast-information" style={styles.navLink}>
                 <LuChartNoAxesCombined size={20} />
                 <span>Forecast Information</span>
-              </a>
-              <a href="#" style={styles.navLink}>
+              </Link>
+              <Link to="/reports-analytics" style={styles.navLink}>
                 <TbFileAnalytics size={20} />
                 <span>Reports & Analytics</span>
-              </a>
+              </Link>
             </nav>
           </div>
 
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
+              <Link to="/settings" style={styles.navLink}>
                 <LuSettings size={20} />
                 <span>Settings</span>
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
 
         <div style={styles.sidebarBottom}>
-          <a href="#" style={styles.logoutLink}>
+          <Link to="/" style={styles.logoutLink}>
             <LuLogOut size={20} />
             <span>Sign Out</span>
-          </a>
+          </Link>
         </div>
       </aside>
 
@@ -125,7 +126,10 @@ export default function App() {
             >
               Verified
             </span>
-            <span style={styles.disabledTab}>
+            <span 
+              style={activeTab === 'Rejected' ? styles.activeTab : styles.inactiveTab}
+              onClick={() => setActiveTab('Rejected')}
+            >
               Rejected
             </span>
           </div>
@@ -345,13 +349,6 @@ const styles = {
     color: '#6b7280',
     paddingBottom: '10px',
     cursor: 'pointer',
-  },
-  disabledTab: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#9ca3af',
-    paddingBottom: '10px',
-    cursor: 'not-allowed',
   },
   tableCard: {
     backgroundColor: '#ffffff',
