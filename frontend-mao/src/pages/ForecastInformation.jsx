@@ -1,15 +1,59 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import agriLogo from "./AgriPrice_White.png";
+import agriLogo from "../AgriPrice_White.png";
 
 import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
-import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuArrowUpRight } from "react-icons/lu";
+import {
+  LuSprout,
+  LuStore,
+  LuTags,
+  LuChartNoAxesCombined,
+  LuSettings,
+  LuLogOut,
+  LuArrowUpRight,
+} from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: TbLayoutDashboard },
+  { to: "/crop-management", label: "Crop Management", icon: LuSprout },
+  { to: "/market-management", label: "Market Management", icon: LuStore },
+  { to: "/crop-prices", label: "Crop Prices", icon: LuTags },
+  { to: "/price-validation", label: "Price Validation", icon: VscWorkspaceTrusted },
+  { to: "/historical-records", label: "Historical Records", icon: GoHistory },
+  { to: "/forecast-information", label: "Forecast Information", icon: LuChartNoAxesCombined, active: true },
+  { to: "/reports-analytics", label: "Reports & Analytics", icon: TbFileAnalytics },
+];
+
+const PERIODS = ["1 Month", "3 Months", "6 Months"];
+
+const forecastDataMap = {
+  "3 Months": {
+    periodLabel: "3 Months",
+    predictedPrice: "₱47.43/kg",
+    confidence: "82%",
+    trend: "Increasing",
+    percentage: "5.4% INCREASE",
+    xAxis: ["Oct 1", "Nov 1", "Dec 1"],
+    svgPath: "M 0 135 L 450 6 L 450 160 L 0 160 Z",
+    svgLine: "M 0 135 L 450 6",
+    axisLabels: ["₱47.5", "₱47", "₱46.5", "₱46", "₱45.5"],
+    tableRows: [
+      { date: "Oct 1, 2026", period: "Month 1", price: "₱45.81" },
+      { date: "Nov 1, 2026", period: "Month 2", price: "₱46.50" },
+      { date: "Dec 1, 2026", period: "Month 3", price: "₱47.43" },
+    ],
+  },
+};
+
 export default function ForecastInformation() {
+  const [selectedPeriod, setSelectedPeriod] = useState("3 Months");
+  const currentData = forecastDataMap[selectedPeriod];
+
   return (
     <div style={styles.container}>
+      {/* SIDEBAR */}
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -20,38 +64,12 @@ export default function ForecastInformation() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <Link to="/dashboard" style={styles.navLink}>
-                <TbLayoutDashboard size={20} />
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/crop-management" style={styles.navLink}>
-                <LuSprout size={20} />
-                <span>Crop Management</span>
-              </Link>
-              <Link to="/market-management" style={styles.navLink}>
-                <LuStore size={20} />
-                <span>Market Management</span>
-              </Link>
-              <Link to="/crop-prices" style={styles.navLink}>
-                <LuTags size={20} />
-                <span>Crop Prices</span>
-              </Link>
-              <Link to="/price-validation" style={styles.navLink}>
-                <VscWorkspaceTrusted size={20} />
-                <span>Price Validation</span>
-              </Link>
-              <Link to="/historical-records" style={styles.navLink}>
-                <GoHistory size={20} />
-                <span>Historical Records</span>
-              </Link>
-              <Link to="/forecast-information" style={styles.activeNavLink}>
-                <LuChartNoAxesCombined size={20} />
-                <span>Forecast Information</span>
-              </Link>
-              <Link to="/reports-analytics" style={styles.navLink}>
-                <TbFileAnalytics size={20} />
-                <span>Reports & Analytics</span>
-              </Link>
+              {navItems.map(({ to, label, icon: Icon, active }) => (
+                <Link key={to} to={to} style={active ? styles.activeNavLink : styles.navLink}>
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -59,7 +77,7 @@ export default function ForecastInformation() {
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
               <Link to="/settings" style={styles.navLink}>
-                <LuSettings size={20} />
+                <LuSettings size={18} />
                 <span>Settings</span>
               </Link>
             </nav>
@@ -68,20 +86,19 @@ export default function ForecastInformation() {
 
         <div style={styles.sidebarBottom}>
           <Link to="/" style={styles.logoutLink}>
-            <LuLogOut size={20} />
+            <LuLogOut size={18} />
             <span>Sign Out</span>
           </Link>
         </div>
       </aside>
 
+      {/* MAIN CONTENT */}
       <div style={styles.mainContent}>
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Forecast Information</h1>
-          <div style={styles.headerRight}>
-            <button style={styles.notifBtn} tabIndex={-1}>
-              <TbBell size={18} color="#374151" />
-            </button>
-          </div>
+          <button style={styles.notifBtn} aria-label="Notifications">
+            <TbBell size={18} color="#374151" />
+          </button>
         </header>
 
         <main style={styles.mainBody}>
@@ -93,18 +110,32 @@ export default function ForecastInformation() {
             <div style={styles.selectionRow}>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Crop</label>
-                <div style={styles.nonInteractableSelect}>
-                  <span>Rice</span>
-                  <span style={styles.dropdownArrow}>▼</span>
-                </div>
+                <select style={styles.select} defaultValue="Rice">
+                  <option>Rice</option>
+                </select>
               </div>
 
               <div style={styles.periodGroup}>
                 <label style={styles.label}>Forecast Period</label>
                 <div style={styles.periodPillsWrapper}>
-                  <div style={styles.periodPillInactive}>1 Month</div>
-                  <div style={styles.periodPillActive}>3 Months</div>
-                  <div style={styles.periodPillInactive}>6 Months</div>
+                  {PERIODS.map((period) => {
+                    const hasData = Boolean(forecastDataMap[period]);
+                    const isActive = selectedPeriod === period;
+
+                    return (
+                      <div
+                        key={period}
+                        onClick={hasData ? () => setSelectedPeriod(period) : undefined}
+                        aria-disabled={!hasData}
+                        style={{
+                          ...(isActive ? styles.periodPillActive : styles.periodPillInactive),
+                          cursor: hasData ? "pointer" : "default",
+                        }}
+                      >
+                        {period}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -113,85 +144,103 @@ export default function ForecastInformation() {
           <div style={styles.middleGrid}>
             <div style={styles.chartCard}>
               <h3 style={styles.cardTitle}>Forecast Chart - Rice</h3>
-              <div style={styles.chartContainer}>
-                <div style={styles.chartLinesBg}>
-                  <span style={styles.axisLabel}>₱47.5</span>
-                  <span style={styles.axisLabel}>₱47</span>
-                  <span style={styles.axisLabel}>₱46.5</span>
-                  <span style={styles.axisLabel}>₱46</span>
-                  <span style={styles.axisLabel}>₱45.5</span>
+              <div style={styles.chartWrapper}>
+                <div style={styles.yAxisLabels}>
+                  {currentData.axisLabels.map((label, idx) => (
+                    <span key={idx} style={styles.yAxisLabelText}>{label}</span>
+                  ))}
                 </div>
-                <svg style={styles.svgLine} viewBox="0 0 500 200" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="greenFade" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#1b6b39" stopOpacity="0.12" />
-                      <stop offset="100%" stopColor="#1b6b39" stopOpacity="0.0" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M 15 135 L 485 45 L 485 185 L 15 185 Z"
-                    fill="url(#greenFade)"
-                  />
-                  <path
-                    d="M 15 135 L 485 45"
-                    fill="none"
-                    stroke="#1b6b39"
-                    strokeWidth="2"
-                    strokeDasharray="4,4"
-                  />
-                </svg>
-                <div style={styles.chartXAxis}>
-                  <span>Oct 1</span>
-                  <span>Nov 1</span>
-                  <span>Dec 1</span>
+
+                <div style={styles.chartArea}>
+                  <div style={styles.gridLinesContainer}>
+                    {currentData.axisLabels.map((_, idx) => (
+                      <div key={idx} style={styles.gridLine} />
+                    ))}
+                  </div>
+
+                  <svg style={styles.svgContainer} viewBox="0 0 450 160" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="greenFade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#2f8f5b" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#2f8f5b" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <path d={currentData.svgPath} fill="url(#greenFade)" />
+                    <path
+                      d={currentData.svgLine}
+                      fill="none"
+                      stroke="#1f7a48"
+                      strokeWidth="2"
+                      strokeDasharray="4,4"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+
+                  <div style={styles.xAxisLabels}>
+                    {currentData.xAxis.map((xLabel, idx) => (
+                      <span key={idx} style={styles.xAxisLabelText}>{xLabel}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div style={styles.summaryCardWrapper}>
+            <div style={styles.summaryCard}>
               <h3 style={styles.cardTitle}>Forecast Summary</h3>
-              
+
               <div style={styles.summaryBoxGreen}>
                 <span style={styles.summaryBoxLabel}>PREDICTED PRICE</span>
-                <span style={styles.summaryBoxValueGreen}>₱47.43/kg</span>
+                <span style={styles.summaryBoxValue}>{currentData.predictedPrice}</span>
               </div>
 
               <div style={styles.summaryBoxOrange}>
                 <span style={styles.summaryBoxLabel}>CONFIDENCE</span>
-                <span style={styles.summaryBoxValueDark}>82%</span>
+                <span style={styles.summaryBoxValue}>{currentData.confidence}</span>
               </div>
 
-              <div style={styles.summaryBoxLight}>
+              <div style={styles.summaryBoxTan}>
                 <span style={styles.summaryBoxLabel}>TREND DIRECTION</span>
-                <div style={styles.trendRow}>
-                  <span style={styles.summaryBoxValueDark}>Increasing</span>
-                </div>
+                <span style={styles.summaryBoxValue}>{currentData.trend}</span>
                 <div style={styles.trendSubText}>
-                  <LuArrowUpRight size={15} style={{ marginRight: '2px', strokeWidth: 2.5 }} />
-                  <span>5.4% INCREASE</span>
+                  <LuArrowUpRight size={11} />
+                  <span>{currentData.percentage}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div style={styles.tableCard}>
-            <h3 style={styles.cardTitle}>Forecast Values</h3>
-            <table style={styles.table}>
-              <thead>
-                <tr style={styles.trHead}>
-                  <th style={styles.th}>DATE</th>
-                  <th style={styles.th}>PERIOD</th>
-                  <th style={styles.th}>PREDICTED PRICE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={styles.trBody}>
-                  <td style={styles.td}>Oct 1, 2026</td>
-                  <td style={styles.td}>Week 1</td>
-                  <td style={styles.td}>₱45.81</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style={styles.tableHeaderContainer}>
+              <h3 style={styles.cardTitle}>Forecast Values</h3>
+            </div>
+            <div style={styles.tableWrapper}>
+              <table style={styles.table}>
+                <colgroup>
+                  <col style={{ width: "34%" }} />
+                  <col style={{ width: "24%" }} />
+                  <col style={{ width: "42%" }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>DATE</th>
+                    <th style={styles.th}>PERIOD</th>
+                    <th style={styles.th}>PREDICTED PRICE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentData.tableRows.map((row, index) => (
+                    <tr
+                      key={index}
+                      style={index === currentData.tableRows.length - 1 ? styles.trBodyLast : styles.trBody}
+                    >
+                      <td style={{ ...styles.td, fontWeight: 500, color: "#111827" }}>{row.date}</td>
+                      <td style={styles.td}>{row.period}</td>
+                      <td style={styles.td}>{row.price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </main>
       </div>
@@ -201,361 +250,338 @@ export default function ForecastInformation() {
 
 const styles = {
   container: {
-    display: 'flex',
-    height: '100vh',
-    backgroundColor: '#fbf9f6',
+    display: "flex",
+    height: "100vh",
+    width: "100%",
+    margin: 0,
+    backgroundColor: "#f5f4f0",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    overflow: "hidden",
   },
   sidebar: {
-    width: '260px',
-    backgroundColor: '#0d2818',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    color: '#ffffff',
-    height: '100vh',
-    boxSizing: 'border-box',
+    width: "260px",
+    backgroundColor: "#0d3b27",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    color: "#ffffff",
+    height: "100vh",
+    boxSizing: "border-box",
     flexShrink: 0,
   },
-  topContent: {
-    overflowY: 'auto',
-    flex: 1,
-  },
+  topContent: { overflowY: "auto", flex: 1 },
   brandContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '24px 20px 20px 20px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "22px 20px 18px 20px",
   },
-  logoImage: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  brandText: {
-    fontWeight: 'bold',
-    fontSize: '20px',
-    color: '#ffffff',
-  },
-  navSection: {
-    padding: '0 16px',
-    marginTop: '12px',
-  },
+  logoImage: { width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" },
+  brandText: { fontWeight: 700, fontSize: "17px", color: "#ffffff" },
+  navSection: { padding: "0 14px", marginTop: "14px" },
   sectionTitle: {
-    fontSize: '11px',
-    fontWeight: 'bold',
-    color: '#8fa89b',
-    letterSpacing: '1px',
-    paddingLeft: '12px',
-    marginBottom: '8px',
-    display: 'block',
+    fontSize: "10px",
+    fontWeight: 600,
+    color: "#8fb3a0",
+    letterSpacing: "1px",
+    paddingLeft: "10px",
+    marginBottom: "8px",
+    display: "block",
   },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
+  nav: { display: "flex", flexDirection: "column", gap: "2px" },
   navLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
   activeNavLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    backgroundColor: '#236042',
-    color: '#ffffff',
-    fontWeight: '500',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    backgroundColor: "#1f8a4c",
+    color: "#ffffff",
+    fontWeight: 500,
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  sidebarBottom: {
-    padding: '16px 20px 24px 20px',
-    marginTop: 'auto',
-  },
+  sidebarBottom: { padding: "16px 14px 22px 14px", marginTop: "auto" },
   logoutLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  mainContent: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
+
+  /* Main */
+  mainContent: { flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0 },
   header: {
-    backgroundColor: '#ffffff',
-    borderBottom: '1px solid #e5e7eb',
-    height: '64px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 32px',
+    backgroundColor: "#ffffff",
+    borderBottom: "1px solid #e5e7eb",
+    height: "56px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 28px",
     flexShrink: 0,
   },
-  headerTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: 0,
-  },
-  headerRight: {
-    display: 'flex',
-    alignItems: 'center',
-  },
+  headerTitle: { fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 },
   notifBtn: {
-    background: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    pointerEvents: 'none',
-    cursor: 'default',
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "50%",
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    padding: 0,
   },
   mainBody: {
-    padding: '24px 32px 32px 32px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
+    padding: "20px 28px 32px 28px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
   },
-  bannerText: {
-    fontSize: '14px',
-    color: '#4b5563',
-    margin: 0,
-  },
+  bannerText: { fontSize: "12px", color: "#6b7280", margin: 0 },
+
+  /* Top Card / Selections */
   topCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px 24px',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px",
+    width: "100%",
+    boxSizing: "border-box",
   },
   selectionRow: {
-    display: 'flex',
-    gap: '24px',
-    alignItems: 'flex-end',
+    display: "flex",
+    gap: "16px",
+    alignItems: "flex-end",
   },
   inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
     flex: 1,
   },
   periodGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    flexShrink: 0,
   },
-  label: {
-    fontSize: '12px',
-    fontWeight: '600',
-    color: '#374151',
-  },
-  nonInteractableSelect: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    padding: '10px 14px',
-    fontSize: '14px',
-    color: '#111827',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    pointerEvents: 'none',
-    cursor: 'default',
-  },
-  dropdownArrow: {
-    fontSize: '10px',
-    color: '#6b7280',
+  label: { fontSize: "11px", fontWeight: 500, color: "#374151" },
+  select: {
+    width: "100%",
+    height: "36px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "6px",
+    padding: "0 10px",
+    fontSize: "12px",
+    color: "#374151",
+    cursor: "pointer",
+    outline: "none",
+    boxSizing: "border-box",
   },
   periodPillsWrapper: {
-    display: 'flex',
-    backgroundColor: '#f3f4f6',
-    borderRadius: '8px',
-    padding: '4px',
-    gap: '4px',
-    pointerEvents: 'none',
-    cursor: 'default',
+    display: "flex",
+    backgroundColor: "#f3f4f1",
+    borderRadius: "999px",
+    padding: "3px",
+    gap: "3px",
+    height: "36px",
+    boxSizing: "border-box",
+    alignItems: "center",
   },
   periodPillInactive: {
-    padding: '6px 14px',
-    fontSize: '13px',
-    color: '#4b5563',
-    borderRadius: '6px',
-    fontWeight: '500',
+    padding: "5px 12px",
+    fontSize: "11px",
+    color: "#374151",
+    borderRadius: "999px",
+    fontWeight: 500,
+    userSelect: "none",
+    whiteSpace: "nowrap",
   },
   periodPillActive: {
-    padding: '6px 14px',
-    fontSize: '13px',
-    color: '#ffffff',
-    backgroundColor: '#1b6b39',
-    borderRadius: '6px',
-    fontWeight: '500',
+    padding: "5px 12px",
+    fontSize: "11px",
+    color: "#ffffff",
+    backgroundColor: "#1f8a4c",
+    borderRadius: "999px",
+    fontWeight: 600,
+    userSelect: "none",
+    whiteSpace: "nowrap",
   },
+
+  /* Middle Grid */
   middleGrid: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr',
-    gap: '20px',
+    display: "grid",
+    gridTemplateColumns: "2fr 1fr",
+    gap: "16px",
+    width: "100%",
   },
   chartCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px 24px',
-    display: 'flex',
-    flexDirection: 'column',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px",
+    display: "flex",
+    flexDirection: "column",
+    boxSizing: "border-box",
   },
-  cardTitle: {
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: '0 0 16px 0',
+  cardTitle: { fontSize: "14px", fontWeight: 600, color: "#111827", margin: "0 0 14px 0" },
+  chartWrapper: {
+    display: "flex",
+    height: "220px",
+    gap: "10px",
+    position: "relative",
   },
-  chartContainer: {
-    position: 'relative',
-    height: '220px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+  yAxisLabels: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    paddingBottom: "22px",
+    width: "40px",
+    flexShrink: 0,
   },
-  chartLinesBg: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    height: '100%',
-    position: 'absolute',
-    width: '100%',
-    zIndex: 1,
-    borderBottom: '1px solid #e5e7eb',
+  yAxisLabelText: { fontSize: "10px", color: "#6b7280" },
+  chartArea: {
+    flex: 1,
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    height: "100%",
   },
-  axisLabel: {
-    fontSize: '11px',
-    color: '#9ca3af',
-    borderBottom: '1px dashed #f3f4f6',
-    paddingBottom: '4px',
+  gridLinesContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: "22px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    pointerEvents: "none",
   },
-  svgLine: {
-    position: 'absolute',
-    top: '10px',
-    left: '30px',
-    width: 'calc(100% - 40px)',
-    height: '160px',
+  gridLine: { width: "100%", borderBottom: "1px solid #f1f2f0" },
+  svgContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: "22px",
+    width: "100%",
+    height: "calc(100% - 22px)",
     zIndex: 2,
   },
-  chartXAxis: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '11px',
-    color: '#9ca3af',
-    marginTop: 'auto',
-    paddingTop: '8px',
+  xAxisLabels: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    display: "flex",
+    justifyContent: "space-between",
     zIndex: 3,
   },
-  summaryCardWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
+  xAxisLabelText: { fontSize: "10px", color: "#6b7280" },
+
+  /* Summary Card */
+  summaryCard: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    boxSizing: "border-box",
   },
   summaryBoxGreen: {
-    backgroundColor: '#e6f4ea',
-    border: '1px solid #ceead6',
-    borderRadius: '10px',
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
+    backgroundColor: "#e1f1e5",
+    border: "1px solid #cfe6d5",
+    borderRadius: "8px",
+    padding: "12px 14px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
   summaryBoxOrange: {
-    backgroundColor: '#fef3e2',
-    border: '1px solid #fce8c8',
-    borderRadius: '10px',
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
+    backgroundColor: "#fdebd3",
+    border: "1px solid #f9dfbd",
+    borderRadius: "8px",
+    padding: "12px 14px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
-  summaryBoxLight: {
-    backgroundColor: '#f8f6f0',
-    border: '1px solid #e5e2db',
-    borderRadius: '10px',
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
+  summaryBoxTan: {
+    backgroundColor: "#f1e8dc",
+    border: "1px solid #e6dccd",
+    borderRadius: "8px",
+    padding: "12px 14px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
-  summaryBoxLabel: {
-    fontSize: '11px',
-    fontWeight: '600',
-    color: '#5f7161',
-    letterSpacing: '0.5px',
-  },
-  summaryBoxValueGreen: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#137333',
-  },
-  summaryBoxValueDark: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#111827',
-  },
-  trendRow: {
-    display: 'flex',
-    alignItems: 'baseline',
-  },
+  summaryBoxLabel: { fontSize: "9px", fontWeight: 500, color: "#5f7161", letterSpacing: "0.3px" },
+  summaryBoxValue: { fontSize: "17px", fontWeight: 700, color: "#0d2818" },
   trendSubText: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '12px',
-    fontWeight: '600',
-    color: '#1b6b39',
-    marginTop: '2px',
+    display: "flex",
+    alignItems: "center",
+    gap: "3px",
+    fontSize: "10px",
+    fontWeight: 500,
+    color: "#374151",
+    marginTop: "2px",
   },
+
+  /* Table Card */
   tableCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px 24px',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px 18px 12px 18px",
+    width: "100%",
+    boxSizing: "border-box",
   },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
+  tableHeaderContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "4px",
   },
-  trHead: {
-    backgroundColor: '#f7f8f6',
-    borderBottom: '1px solid #e5e7eb',
-  },
+  tableWrapper: { width: "100%", overflowX: "auto" },
+  table: { width: "100%", borderCollapse: "collapse", textAlign: "left", tableLayout: "fixed" },
   th: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#5f7161',
-    padding: '12px 16px',
-    letterSpacing: '0.5px',
+    fontSize: "9px",
+    fontWeight: 500,
+    color: "#6b7a6e",
+    padding: "10px 12px",
+    letterSpacing: "0.5px",
+    backgroundColor: "#f3f4f1",
+    textAlign: "left",
   },
-  trBody: {
-    borderBottom: 'none',
-  },
+  trBody: { borderBottom: "1px solid #f1f2f0" },
+  trBodyLast: { borderBottom: "none" },
   td: {
-    fontSize: '13px',
-    color: '#374151',
-    padding: '16px',
+    fontSize: "11px",
+    color: "#374151",
+    padding: "15px 12px",
+    verticalAlign: "middle",
+    textAlign: "left",
   },
 };

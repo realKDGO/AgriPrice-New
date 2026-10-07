@@ -1,29 +1,48 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import agriLogo from "./AgriPrice_White.png";
+import agriLogo from "../AgriPrice_White.png";
 
-import { TbLayoutDashboard, TbFileAnalytics, TbBell, TbTrendingUp, TbUsers } from "react-icons/tb";
-import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut, LuArrowUpRight } from "react-icons/lu";
+import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
+import {
+  LuSprout,
+  LuStore,
+  LuTags,
+  LuChartNoAxesCombined,
+  LuSettings,
+  LuLogOut,
+  LuArrowRight,
+  LuShieldCheck,
+} from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: TbLayoutDashboard, active: true },
+  { to: "/crop-management", label: "Crop Management", icon: LuSprout },
+  { to: "/market-management", label: "Market Management", icon: LuStore },
+  { to: "/crop-prices", label: "Crop Prices", icon: LuTags },
+  { to: "/price-validation", label: "Price Validation", icon: VscWorkspaceTrusted },
+  { to: "/historical-records", label: "Historical Records", icon: GoHistory },
+  { to: "/forecast-information", label: "Forecast Information", icon: LuChartNoAxesCombined },
+  { to: "/reports-analytics", label: "Reports & Analytics", icon: TbFileAnalytics },
+];
+
 export default function Dashboard() {
   const statsData = [
-    { title: 'Total Crops Tracked', value: '24', change: '+12% from last month', icon: <LuSprout size={20} color="#1b6b39" /> },
-    { title: 'Active Markets', value: '18', change: '+4 new markets', icon: <LuStore size={20} color="#1b6b39" /> },
-    { title: 'Pending Validations', value: '5', change: 'Requires review', icon: <VscWorkspaceTrusted size={20} color="#d97706" /> },
-    { title: 'Registered Farmers', value: '1,420', change: '+85 this week', icon: <TbUsers size={20} color="#1b6b39" /> },
+    { title: "Active crops", value: "8", icon: <LuSprout size={16} color="#4b5563" /> },
+    { title: "Monitored markets", value: "7", icon: <LuStore size={16} color="#4b5563" /> },
+    { title: "Verified price records", value: "56", icon: <LuTags size={16} color="#4b5563" /> },
+    { title: "Awaiting validation", value: "2", subtext: "Review before public display", icon: <LuShieldCheck size={16} color="#4b5563" /> },
   ];
 
-  const recentPrices = [
-    { id: 1, crop: 'Rice (Well-Milled)', market: 'Antipolo Public Market', price: '₱45.00 /kg', trend: '+₱2.00', status: 'Verified' },
-    { id: 2, crop: 'Tomato', market: 'Teresa Public Market', price: '₱65.00 /kg', trend: '-₱5.00', status: 'Pending' },
-    { id: 3, crop: 'Eggplant', market: 'Cainta Public Market', price: '₱50.00 /kg', trend: '₱0.00', status: 'Verified' },
-    { id: 4, crop: 'Corn (Yellow)', market: 'Binangonan Market', price: '₱38.00 /kg', trend: '+₱1.50', status: 'Verified' },
+  const pendingData = [
+    { id: 1, crop: "Tomato", market: "Teresa Public Market", price: "₱65.00", status: "Pending" },
+    { id: 2, crop: "Rice", market: "Antipolo Public Market", price: "₱47.00", status: "Pending" },
   ];
 
   return (
     <div style={styles.container}>
+      {/* SIDEBAR */}
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -34,38 +53,12 @@ export default function Dashboard() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <Link to="/dashboard" style={styles.activeNavLink}>
-                <TbLayoutDashboard size={20} />
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/crop-management" style={styles.navLink}>
-                <LuSprout size={20} />
-                <span>Crop Management</span>
-              </Link>
-              <Link to="/market-management" style={styles.navLink}>
-                <LuStore size={20} />
-                <span>Market Management</span>
-              </Link>
-              <Link to="/crop-prices" style={styles.navLink}>
-                <LuTags size={20} />
-                <span>Crop Prices</span>
-              </Link>
-              <Link to="/price-validation" style={styles.navLink}>
-                <VscWorkspaceTrusted size={20} />
-                <span>Price Validation</span>
-              </Link>
-              <Link to="/historical-records" style={styles.navLink}>
-                <GoHistory size={20} />
-                <span>Historical Records</span>
-              </Link>
-              <Link to="/forecast-information" style={styles.navLink}>
-                <LuChartNoAxesCombined size={20} />
-                <span>Forecast Information</span>
-              </Link>
-              <Link to="/reports-analytics" style={styles.navLink}>
-                <TbFileAnalytics size={20} />
-                <span>Reports & Analytics</span>
-              </Link>
+              {navItems.map(({ to, label, icon: Icon, active }) => (
+                <Link key={to} to={to} style={active ? styles.activeNavLink : styles.navLink}>
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -73,7 +66,7 @@ export default function Dashboard() {
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
               <Link to="/settings" style={styles.navLink}>
-                <LuSettings size={20} />
+                <LuSettings size={18} />
                 <span>Settings</span>
               </Link>
             </nav>
@@ -82,34 +75,32 @@ export default function Dashboard() {
 
         <div style={styles.sidebarBottom}>
           <Link to="/" style={styles.logoutLink}>
-            <LuLogOut size={20} />
+            <LuLogOut size={18} />
             <span>Sign Out</span>
           </Link>
         </div>
       </aside>
 
+      {/* MAIN */}
       <div style={styles.mainContent}>
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Dashboard Overview</h1>
-          <div style={styles.headerRight}>
-            <button style={styles.notifBtn}>
-              <TbBell size={18} color="#374151" />
-            </button>
-          </div>
+          <h1 style={styles.headerTitle}>MAO Dashboard</h1>
+          <button style={styles.notifBtn} aria-label="Notifications">
+            <TbBell size={18} color="#374151" />
+          </button>
         </header>
 
         <main style={styles.mainBody}>
-          <div style={styles.welcomeBanner}>
-            <div>
-              <h2 style={styles.welcomeTitle}>Welcome back, Admin! 👋</h2>
-              <p style={styles.bannerText}>Here's the latest agricultural market updates and price trends today.</p>
-            </div>
-            <Link to="/reports-analytics" style={styles.bannerBtn}>
-              <TbTrendingUp size={16} />
-              <span>View Analytics</span>
+          {/* Banner */}
+          <div style={styles.banner}>
+            <p style={styles.bannerText}>Keep Jala-Jala's crop information accurate and up to date.</p>
+            <Link to="/crop-prices" style={styles.bannerBtn}>
+              <span>Record a price</span>
+              <LuArrowRight size={14} />
             </Link>
           </div>
 
+          {/* Stats Grid */}
           <div style={styles.statsGrid}>
             {statsData.map((stat, index) => (
               <div key={index} style={styles.statCard}>
@@ -119,49 +110,83 @@ export default function Dashboard() {
                 </div>
                 <div style={styles.statBody}>
                   <h3 style={styles.statValue}>{stat.value}</h3>
-                  <span style={styles.statChange}>{stat.change}</span>
+                  {stat.subtext && <span style={styles.statSubtext}>{stat.subtext}</span>}
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Table card */}
           <div style={styles.tableCard}>
             <div style={styles.tableHeaderContainer}>
-              <h3 style={styles.tableSectionTitle}>Recent Price Submissions</h3>
-              <Link to="/crop-prices" style={styles.viewAllLink}>
-                <span>View all</span>
-                <LuArrowUpRight size={14} />
+              <h3 style={styles.tableSectionTitle}>Prices needing attention</h3>
+              <Link to="/price-validation" style={styles.viewAllLink}>
+                <span>Review queue</span>
+                <LuArrowRight size={14} />
               </Link>
             </div>
 
             <table style={styles.table}>
+              <colgroup>
+                <col style={{ width: "16%" }} />
+                <col style={{ width: "28%" }} />
+                <col style={{ width: "28%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "14%" }} />
+              </colgroup>
               <thead>
-                <tr style={styles.trHead}>
+                <tr>
                   <th style={styles.th}>CROP</th>
                   <th style={styles.th}>MARKET</th>
-                  <th style={styles.th}>CURRENT PRICE</th>
-                  <th style={styles.th}>TREND</th>
+                  <th style={styles.th}>SUBMITTED PRICE / KG</th>
                   <th style={styles.th}>STATUS</th>
+                  <th style={{ ...styles.th, ...styles.thAction }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
-                {recentPrices.map((item, index) => (
-                  <tr key={item.id} style={index === recentPrices.length - 1 ? styles.trBodyLast : styles.trBody}>
-                    <td style={{...styles.td, fontWeight: '500', color: '#111827'}}>{item.crop}</td>
+                {pendingData.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    style={index === pendingData.length - 1 ? styles.trBodyLast : styles.trBody}
+                  >
+                    <td style={{ ...styles.td, fontWeight: 500, color: "#111827" }}>{item.crop}</td>
                     <td style={styles.td}>{item.market}</td>
                     <td style={styles.td}>{item.price}</td>
-                    <td style={{...styles.td, color: item.trend.includes('+') ? '#137333' : item.trend.includes('-') ? '#c5221f' : '#5f7161'}}>
-                      {item.trend}
-                    </td>
                     <td style={styles.td}>
-                      <span style={item.status === 'Verified' ? styles.verifiedBadge : styles.pendingBadge}>
-                        {item.status}
-                      </span>
+                      <span style={styles.pendingBadge}>{item.status}</span>
+                    </td>
+                    <td style={{ ...styles.td, ...styles.tdAction }}>
+                      <Link to="/price-validation" style={styles.actionBtn}>
+                        <span>Review</span>
+                      </Link>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Bottom Cards Grid */}
+          <div style={styles.bottomCardsGrid}>
+            <div style={styles.infoCard}>
+              <h3 style={styles.infoCardTitle}>Maintain agricultural information</h3>
+              <p style={styles.infoCardText}>
+                Crop and market details are shared across the farmer tools.<br />
+                New prices require validation before they appear publicly.
+              </p>
+              <Link to="/crop-management" style={styles.inlineLink}>
+                <span>Manage crops</span>
+                <LuArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div style={styles.infoCard}>
+              <h3 style={styles.infoCardTitle}>Latest data activity</h3>
+              <div style={styles.activityBox}>
+                <p style={styles.activityTitle}>Reviewed price submissions</p>
+                <p style={styles.activityMeta}>Elena Reyes · 2026-09-05 08:00</p>
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -171,289 +196,251 @@ export default function Dashboard() {
 
 const styles = {
   container: {
-    display: 'flex',
-    height: '100vh',
-    backgroundColor: '#fbf9f6',
+    display: "flex",
+    height: "100vh",
+    width: "100%",
+    margin: 0,
+    backgroundColor: "#f5f4f0",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    overflow: "hidden",
   },
+
   sidebar: {
-    width: '260px',
-    backgroundColor: '#0d2818',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    color: '#ffffff',
-    height: '100vh',
-    boxSizing: 'border-box',
+    width: "260px",
+    backgroundColor: "#0d3b27",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    color: "#ffffff",
+    height: "100vh",
+    boxSizing: "border-box",
     flexShrink: 0,
   },
-  topContent: {
-    overflowY: 'auto',
-    flex: 1,
-  },
+  topContent: { overflowY: "auto", flex: 1 },
   brandContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '24px 20px 20px 20px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "22px 20px 18px 20px",
   },
-  logoImage: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  brandText: {
-    fontWeight: 'bold',
-    fontSize: '20px',
-    color: '#ffffff',
-  },
-  navSection: {
-    padding: '0 16px',
-    marginTop: '12px',
-  },
+  logoImage: { width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" },
+  brandText: { fontWeight: 700, fontSize: "17px", color: "#ffffff" },
+  navSection: { padding: "0 14px", marginTop: "14px" },
   sectionTitle: {
-    fontSize: '11px',
-    fontWeight: 'bold',
-    color: '#8fa89b',
-    letterSpacing: '1px',
-    paddingLeft: '12px',
-    marginBottom: '8px',
-    display: 'block',
+    fontSize: "10px",
+    fontWeight: 600,
+    color: "#8fb3a0",
+    letterSpacing: "1px",
+    paddingLeft: "10px",
+    marginBottom: "8px",
+    display: "block",
   },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
+  nav: { display: "flex", flexDirection: "column", gap: "2px" },
   navLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
   activeNavLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    backgroundColor: '#236042',
-    color: '#ffffff',
-    fontWeight: '500',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    backgroundColor: "#1f8a4c",
+    color: "#ffffff",
+    fontWeight: 500,
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  sidebarBottom: {
-    padding: '16px 20px 24px 20px',
-    marginTop: 'auto',
-  },
+  sidebarBottom: { padding: "16px 14px 22px 14px", marginTop: "auto" },
   logoutLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  mainContent: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
+
+  /* Main */
+  mainContent: { flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0 },
   header: {
-    backgroundColor: '#ffffff',
-    borderBottom: '1px solid #e5e7eb',
-    height: '64px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 32px',
+    backgroundColor: "#ffffff",
+    borderBottom: "1px solid #e5e7eb",
+    height: "56px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 28px",
     flexShrink: 0,
   },
-  headerTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: 0,
-  },
-  headerRight: {
-    display: 'flex',
-    alignItems: 'center',
-  },
+  headerTitle: { fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 },
   notifBtn: {
-    background: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "50%",
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    padding: 0,
   },
   mainBody: {
-    padding: '24px 32px 32px 32px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
+    padding: "20px 28px 32px 28px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
   },
-  welcomeBanner: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '12px',
-    padding: '24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  welcomeTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: '0 0 6px 0',
-  },
-  bannerText: {
-    fontSize: '14px',
-    color: '#4b5563',
-    margin: 0,
-  },
+
+  /* Banner */
+  banner: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+  bannerText: { fontSize: "12px", color: "#6b7280", margin: 0 },
   bannerBtn: {
-    backgroundColor: '#1b6b39',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    padding: '10px 16px',
-    fontSize: '13px',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    textDecoration: 'none',
-    cursor: 'pointer',
+    backgroundColor: "#1f8a4c",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "6px",
+    padding: "9px 16px",
+    fontSize: "12px",
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    textDecoration: "none",
+    cursor: "pointer",
   },
+
+  /* Stats Grid */
   statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "14px",
   },
   statCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "16px 18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
   },
   statHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  statTitle: {
-    fontSize: '12px',
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  statIconWrapper: {
-    backgroundColor: '#e6f4ea',
-    padding: '8px',
-    borderRadius: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statBody: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
-  statValue: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#111827',
-    margin: 0,
-  },
-  statChange: {
-    fontSize: '12px',
-    color: '#0d9488',
-  },
+  statTitle: { fontSize: "11px", fontWeight: 500, color: "#6b7280" },
+  statIconWrapper: { display: "flex", alignItems: "center", justifyContent: "center" },
+  statBody: { display: "flex", flexDirection: "column", gap: "2px" },
+  statValue: { fontSize: "22px", fontWeight: 600, color: "#111827", margin: 0 },
+  statSubtext: { fontSize: "10px", color: "#9ca3af" },
+
+  /* Table */
   tableCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px 24px 12px 24px',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px 18px 10px 18px",
   },
   tableHeaderContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
   },
-  tableSectionTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: 0,
-  },
+  tableSectionTitle: { fontSize: "14px", fontWeight: 600, color: "#111827", margin: 0 },
   viewAllLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '13px',
-    fontWeight: '500',
-    color: '#1b6b39',
-    textDecoration: 'none',
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "#1f8a4c",
+    textDecoration: "none",
   },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-  },
-  trHead: {
-    backgroundColor: '#f7f8f6',
-    borderBottom: '1px solid #e5e7eb',
-  },
+  table: { width: "100%", borderCollapse: "collapse", textAlign: "left", tableLayout: "fixed" },
   th: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#5f7161',
-    padding: '12px 16px',
-    letterSpacing: '0.5px',
+    fontSize: "9px",
+    fontWeight: 500,
+    color: "#6b7a6e",
+    padding: "10px 12px",
+    letterSpacing: "0.5px",
+    backgroundColor: "#f3f4f1",
+    textAlign: "left",
   },
-  trBody: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  trBodyLast: {
-    borderBottom: 'none',
-  },
+  thAction: { textAlign: "right", paddingRight: "12px" },
+  trBody: { borderBottom: "1px solid #f1f2f0" },
+  trBodyLast: { borderBottom: "none" },
   td: {
-    fontSize: '13px',
-    color: '#374151',
-    padding: '16px',
+    fontSize: "11px",
+    color: "#374151",
+    padding: "15px 12px",
+    verticalAlign: "middle",
   },
-  verifiedBadge: {
-    backgroundColor: '#e6f4ea',
-    color: '#137333',
-    fontSize: '11px',
-    fontWeight: '500',
-    padding: '3px 10px',
-    borderRadius: '12px',
-  },
+  tdAction: { textAlign: "right" },
   pendingBadge: {
-    backgroundColor: '#fef3c7',
-    color: '#92400e',
-    fontSize: '11px',
-    fontWeight: '500',
-    padding: '3px 10px',
-    borderRadius: '12px',
+    display: "inline-block",
+    backgroundColor: "#fef3c7",
+    color: "#b45309",
+    fontSize: "9px",
+    fontWeight: 500,
+    padding: "3px 8px",
+    borderRadius: "4px",
   },
+  actionBtn: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    color: "#374151",
+    padding: "5px 9px",
+    borderRadius: "5px",
+    fontSize: "10px",
+    fontWeight: 500,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textDecoration: "none",
+    cursor: "pointer",
+  },
+
+  /* Bottom Cards Grid */
+  bottomCardsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "14px",
+  },
+  infoCard: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px 20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  infoCardTitle: { fontSize: "13px", fontWeight: 600, color: "#111827", margin: 0 },
+  infoCardText: { fontSize: "11px", color: "#6b7280", margin: 0, lineHeight: 1.5 },
+  inlineLink: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "5px",
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "#1f8a4c",
+    textDecoration: "none",
+    marginTop: "4px",
+  },
+  activityBox: { display: "flex", flexDirection: "column", gap: "2px", marginTop: "4px" },
+  activityTitle: { fontSize: "11px", fontWeight: 500, color: "#374151", margin: 0 },
+  activityMeta: { fontSize: "10px", color: "#9ca3af", margin: 0 },
 };
