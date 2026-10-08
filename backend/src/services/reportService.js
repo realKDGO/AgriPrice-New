@@ -26,6 +26,7 @@ export async function profit(input) {
   return calculateProfit(
     input.quantity,
     input.sellingPrice,
+    transportCost(market.transportBaseCost, input.quantity),
     input.otherExpenses,
   );
 }

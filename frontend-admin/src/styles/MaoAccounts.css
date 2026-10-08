@@ -1,0 +1,99 @@
+    .mao-page {
+    --green: #0b7a2f;
+    --green-dark: #086625;
+    --ink: #1b1f1d;
+    --muted: #5d6661;
+    --border: #e2e6e3;
+    min-height: 100vh;
+    background: #fff;
+    color: var(--ink);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    }
+    .mao-page * { box-sizing: border-box; }
+
+    .mao-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 28px; background: #fff;
+    }
+    .mao-header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    .mao-bell {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--ink); cursor: pointer;
+    }
+    .mao-bell:hover { background: #f5f7f6; }
+
+    .mao-body {
+    padding: 28px;
+    min-height: calc(100vh - 77px);
+    background: linear-gradient(180deg, #f3e9c6 0%, #f8f3df 25%, #fff 70%);
+    }
+
+    .mao-intro { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .mao-intro p { margin: 0; color: var(--ink); }
+    .mao-add {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 18px; border: 0; border-radius: 6px;
+    background: var(--green); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .mao-add:hover { background: var(--green-dark); }
+
+    .mao-filters { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+    .mao-search {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    height: 44px; padding: 0 14px;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px; color: var(--muted);
+    }
+    .mao-search input {
+    flex: 1; border: 0; outline: 0; background: transparent;
+    font: inherit; color: var(--ink);
+    }
+    .mao-search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(11,122,47,.15); }
+
+    .mao-status-filter { width: 260px; display: flex; flex-direction: column; gap: 6px; }
+    .mao-status-filter label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .mao-status-filter select {
+    height: 44px; padding: 0 12px; font: inherit; font-weight: 500; color: var(--ink);
+    background: #fff; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+    }
+    .mao-status-filter select:focus { outline: 0; border-color: var(--green); box-shadow: 0 0 0 3px rgba(11,122,47,.15); }
+
+    .mao-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px; overflow-x: auto;
+    }
+    .mao-card table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    .mao-card thead th {
+    text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+    background: #eef0e4;
+    }
+    .mao-card thead th:first-child { border-radius: 8px 0 0 8px; }
+    .mao-card thead th:last-child { border-radius: 0 8px 8px 0; }
+    .mao-card tbody td { padding: 18px 16px; border-bottom: 1px solid #f0f2f1; vertical-align: middle; }
+    .mao-card tbody tr:last-child td { border-bottom: 0; }
+    .mao-card tbody tr:hover { background: #fafbfa; }
+
+    .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+    }
+    .badge-role { background: #dff0e3; color: var(--green); }
+    .badge-active { background: #dff0e3; color: var(--green); }
+    .badge-inactive { background: #eceeed; color: var(--muted); }
+
+    .mao-edit {
+    padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 600;
+    background: #fff; color: var(--ink);
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    }
+    .mao-edit:hover { background: #f5f7f6; border-color: #cfd5d1; }
+
+    .mao-empty { text-align: center; color: var(--muted); padding: 40px 16px !important; }
+
+    @media (max-width: 720px) {
+    .mao-filters { flex-direction: column; align-items: stretch; }
+    .mao-status-filter { width: 100%; }
+    .mao-intro { flex-direction: column; align-items: flex-start; gap: 14px; }
+    }

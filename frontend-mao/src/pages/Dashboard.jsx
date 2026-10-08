@@ -1,15 +1,48 @@
 import React from "react";
-import agriLogo from "./AgriPrice_White.png";
+import { Link } from "react-router-dom";
+import agriLogo from "../AgriPrice_White.png";
 
-import { TbLayoutDashboard, TbFileAnalytics, TbBell, TbArrowRight } from "react-icons/tb";
-import { LuSprout, LuStore, LuTags, LuChartNoAxesCombined, LuSettings, LuLogOut } from "react-icons/lu";
+import { TbLayoutDashboard, TbFileAnalytics, TbBell } from "react-icons/tb";
+import {
+  LuSprout,
+  LuStore,
+  LuTags,
+  LuChartNoAxesCombined,
+  LuSettings,
+  LuLogOut,
+  LuArrowRight,
+  LuShieldCheck,
+} from "react-icons/lu";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { GoHistory } from "react-icons/go";
 
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: TbLayoutDashboard, active: true },
+  { to: "/crop-management", label: "Crop Management", icon: LuSprout },
+  { to: "/market-management", label: "Market Management", icon: LuStore },
+  { to: "/crop-prices", label: "Crop Prices", icon: LuTags },
+  { to: "/price-validation", label: "Price Validation", icon: VscWorkspaceTrusted },
+  { to: "/historical-records", label: "Historical Records", icon: GoHistory },
+  { to: "/forecast-information", label: "Forecast Information", icon: LuChartNoAxesCombined },
+  { to: "/reports-analytics", label: "Reports & Analytics", icon: TbFileAnalytics },
+];
+
 export default function Dashboard() {
+  const statsData = [
+    { title: "Active crops", value: "8", icon: <LuSprout size={16} color="#4b5563" /> },
+    { title: "Monitored markets", value: "7", icon: <LuStore size={16} color="#4b5563" /> },
+    { title: "Verified price records", value: "56", icon: <LuTags size={16} color="#4b5563" /> },
+    { title: "Awaiting validation", value: "2", subtext: "Review before public display", icon: <LuShieldCheck size={16} color="#4b5563" /> },
+  ];
+
+  const pendingData = [
+    { id: 1, crop: "Tomato", market: "Teresa Public Market", price: "₱65.00", status: "Pending" },
+    { id: 2, crop: "Rice", market: "Antipolo Public Market", price: "₱47.00", status: "Pending" },
+  ];
+
   return (
     <div style={styles.container}>
-
+      {/* SIDEBAR */}
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -20,524 +53,394 @@ export default function Dashboard() {
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>OVERVIEW</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.activeNavLink}>
-                <TbLayoutDashboard size={20} />
-                <span>Dashboard</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <LuSprout size={20} />
-                <span>Crop Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <LuStore size={20} />
-                <span>Market Management</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <LuTags size={20} />
-                <span>Crop Prices</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <VscWorkspaceTrusted size={20} />
-                <span>Price Validation</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <GoHistory size={20} />
-                <span>Historical Records</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <LuChartNoAxesCombined size={20} />
-                <span>Forecast Information</span>
-              </a>
-              <a href="#" style={styles.navLink}>
-                <TbFileAnalytics size={20} />
-                <span>Reports & Analytics</span>
-              </a>
+              {navItems.map(({ to, label, icon: Icon, active }) => (
+                <Link key={to} to={to} style={active ? styles.activeNavLink : styles.navLink}>
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </Link>
+              ))}
             </nav>
           </div>
 
           <div style={styles.navSection}>
             <span style={styles.sectionTitle}>ACCOUNT</span>
             <nav style={styles.nav}>
-              <a href="#" style={styles.navLink}>
-                <LuSettings size={20} />
+              <Link to="/settings" style={styles.navLink}>
+                <LuSettings size={18} />
                 <span>Settings</span>
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
 
         <div style={styles.sidebarBottom}>
-          <a href="#" style={styles.logoutLink}>
-            <LuLogOut size={20} />
+          <Link to="/" style={styles.logoutLink}>
+            <LuLogOut size={18} />
             <span>Sign Out</span>
-          </a>
+          </Link>
         </div>
       </aside>
 
+      {/* MAIN */}
       <div style={styles.mainContent}>
-
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>MAO Dashboard</h1>
-          <div style={styles.headerRight}>
-            <button style={styles.notifBtn}>
-              <TbBell size={18} color="#374151" />
-            </button>
-          </div>
+          <button style={styles.notifBtn} aria-label="Notifications">
+            <TbBell size={18} color="#374151" />
+          </button>
         </header>
 
         <main style={styles.mainBody}>
-
+          {/* Banner */}
           <div style={styles.banner}>
             <p style={styles.bannerText}>Keep Jala-Jala's crop information accurate and up to date.</p>
-            <button style={styles.bannerBtn}>
+            <Link to="/crop-prices" style={styles.bannerBtn}>
               <span>Record a price</span>
-              <TbArrowRight size={16} strokeWidth={2.5} />
-            </button>
+              <LuArrowRight size={14} />
+            </Link>
           </div>
 
-          <div style={styles.rowGrid4}>
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Active crops</span>
-                <LuSprout size={18} color="#6b7280" />
+          {/* Stats Grid */}
+          <div style={styles.statsGrid}>
+            {statsData.map((stat, index) => (
+              <div key={index} style={styles.statCard}>
+                <div style={styles.statHeader}>
+                  <span style={styles.statTitle}>{stat.title}</span>
+                  <div style={styles.statIconWrapper}>{stat.icon}</div>
+                </div>
+                <div style={styles.statBody}>
+                  <h3 style={styles.statValue}>{stat.value}</h3>
+                  {stat.subtext && <span style={styles.statSubtext}>{stat.subtext}</span>}
+                </div>
               </div>
-              <h3 style={styles.cardValue}>8</h3>
-            </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Monitored markets</span>
-                <LuStore size={18} color="#6b7280" />
-              </div>
-              <h3 style={styles.cardValue}>7</h3>
-            </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Verified price records</span>
-                <LuTags size={18} color="#6b7280" />
-              </div>
-              <h3 style={styles.cardValue}>56</h3>
-            </div>
-
-            <div style={styles.card}>
-              <div style={styles.cardHeaderTop}>
-                <span style={styles.cardTitle}>Awaiting validation</span>
-                <VscWorkspaceTrusted size={18} color="#6b7280" />
-              </div>
-              <h3 style={styles.cardValue}>2</h3>
-              <span style={styles.cardSubText}>Review before public display</span>
-            </div>
+            ))}
           </div>
 
+          {/* Table card */}
           <div style={styles.tableCard}>
             <div style={styles.tableHeaderContainer}>
               <h3 style={styles.tableSectionTitle}>Prices needing attention</h3>
-              <a href="#" style={styles.reviewQueueLink}>
+              <Link to="/price-validation" style={styles.viewAllLink}>
                 <span>Review queue</span>
-                <span style={styles.linkDivider}>
-                  <TbArrowRight size={16} strokeWidth={2.5} />
-                </span>
-              </a>
+                <LuArrowRight size={14} />
+              </Link>
             </div>
 
             <table style={styles.table}>
+              <colgroup>
+                <col style={{ width: "16%" }} />
+                <col style={{ width: "28%" }} />
+                <col style={{ width: "28%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "14%" }} />
+              </colgroup>
               <thead>
-                <tr style={styles.trHead}>
+                <tr>
                   <th style={styles.th}>CROP</th>
                   <th style={styles.th}>MARKET</th>
                   <th style={styles.th}>SUBMITTED PRICE / KG</th>
                   <th style={styles.th}>STATUS</th>
-                  <th style={styles.thAction}>ACTIONS</th>
+                  <th style={{ ...styles.th, ...styles.thAction }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
-                <tr style={styles.trBody}>
-                  <td style={styles.td}>Tomato</td>
-                  <td style={styles.td}>Teresa Public Market</td>
-                  <td style={styles.td}>₱65.00</td>
-                  <td style={styles.td}>
-                    <span style={styles.pendingBadge}>Pending</span>
-                  </td>
-                  <td style={styles.tdAction}>
-                    <button style={styles.reviewBtn}>Review</button>
-                  </td>
-                </tr>
-                <tr style={styles.trBodyLast}>
-                  <td style={styles.td}>Rice</td>
-                  <td style={styles.td}>Antipolo Public Market</td>
-                  <td style={styles.td}>₱47.00</td>
-                  <td style={styles.td}>
-                    <span style={styles.pendingBadge}>Pending</span>
-                  </td>
-                  <td style={styles.tdAction}>
-                    <button style={styles.reviewBtn}>Review</button>
-                  </td>
-                </tr>
+                {pendingData.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    style={index === pendingData.length - 1 ? styles.trBodyLast : styles.trBody}
+                  >
+                    <td style={{ ...styles.td, fontWeight: 500, color: "#111827" }}>{item.crop}</td>
+                    <td style={styles.td}>{item.market}</td>
+                    <td style={styles.td}>{item.price}</td>
+                    <td style={styles.td}>
+                      <span style={styles.pendingBadge}>{item.status}</span>
+                    </td>
+                    <td style={{ ...styles.td, ...styles.tdAction }}>
+                      <Link to="/price-validation" style={styles.actionBtn}>
+                        <span>Review</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          <div style={styles.rowGrid2}>
+          {/* Bottom Cards Grid */}
+          <div style={styles.bottomCardsGrid}>
             <div style={styles.infoCard}>
               <h3 style={styles.infoCardTitle}>Maintain agricultural information</h3>
               <p style={styles.infoCardText}>
                 Crop and market details are shared across the farmer tools.<br />
                 New prices require validation before they appear publicly.
               </p>
-              <a href="#" style={styles.infoCardLink}>
+              <Link to="/crop-management" style={styles.inlineLink}>
                 <span>Manage crops</span>
-                <span style={styles.linkDivider}>
-                  <TbArrowRight size={16} strokeWidth={2.5} />
-                </span>
-              </a>
+                <LuArrowRight size={14} />
+              </Link>
             </div>
 
             <div style={styles.infoCard}>
               <h3 style={styles.infoCardTitle}>Latest data activity</h3>
-              <p style={styles.infoCardSubtitle}>Reviewed price submissions</p>
-              <p style={styles.infoCardMeta}>Elena Reyes · 2026-09-05 08:00</p>
+              <div style={styles.activityBox}>
+                <p style={styles.activityTitle}>Reviewed price submissions</p>
+                <p style={styles.activityMeta}>Elena Reyes · 2026-09-05 08:00</p>
+              </div>
             </div>
           </div>
-
         </main>
       </div>
-
     </div>
   );
 }
 
 const styles = {
   container: {
-    display: 'flex',
-    height: '100vh',
-    backgroundColor: '#fbf9f6',
+    display: "flex",
+    height: "100vh",
+    width: "100%",
+    margin: 0,
+    backgroundColor: "#f5f4f0",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    overflow: "hidden",
   },
+
   sidebar: {
-    width: '260px',
-    backgroundColor: '#0d2818',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    color: '#ffffff',
-    height: '100vh',
-    boxSizing: 'border-box',
+    width: "260px",
+    backgroundColor: "#0d3b27",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    color: "#ffffff",
+    height: "100vh",
+    boxSizing: "border-box",
     flexShrink: 0,
   },
-  topContent: {
-    overflowY: 'auto',
-    flex: 1,
-  },
+  topContent: { overflowY: "auto", flex: 1 },
   brandContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '24px 20px 20px 20px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "22px 20px 18px 20px",
   },
-  logoImage: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  brandText: {
-    fontWeight: 'bold',
-    fontSize: '20px',
-    color: '#ffffff',
-  },
-  navSection: {
-    padding: '0 16px',
-    marginTop: '12px',
-  },
+  logoImage: { width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" },
+  brandText: { fontWeight: 700, fontSize: "17px", color: "#ffffff" },
+  navSection: { padding: "0 14px", marginTop: "14px" },
   sectionTitle: {
-    fontSize: '11px',
-    fontWeight: 'bold',
-    color: '#8fa89b',
-    letterSpacing: '1px',
-    paddingLeft: '12px',
-    marginBottom: '8px',
-    display: 'block',
+    fontSize: "10px",
+    fontWeight: 600,
+    color: "#8fb3a0",
+    letterSpacing: "1px",
+    paddingLeft: "10px",
+    marginBottom: "8px",
+    display: "block",
   },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
+  nav: { display: "flex", flexDirection: "column", gap: "2px" },
   navLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
   activeNavLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    backgroundColor: '#236042',
-    color: '#ffffff',
-    fontWeight: '500',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    backgroundColor: "#1f8a4c",
+    color: "#ffffff",
+    fontWeight: 500,
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  sidebarBottom: {
-    padding: '16px 20px 24px 20px',
-    marginTop: 'auto',
-  },
+  sidebarBottom: { padding: "16px 14px 22px 14px", marginTop: "auto" },
   logoutLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#c2d1c9',
-    textDecoration: 'none',
-    fontSize: '14px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "9px 10px",
+    borderRadius: "6px",
+    color: "#d3e3da",
+    textDecoration: "none",
+    fontSize: "13px",
   },
-  mainContent: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
+
+  /* Main */
+  mainContent: { flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0 },
   header: {
-    backgroundColor: '#ffffff',
-    borderBottom: '1px solid #e5e7eb',
-    height: '64px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 32px',
+    backgroundColor: "#ffffff",
+    borderBottom: "1px solid #e5e7eb",
+    height: "56px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 28px",
     flexShrink: 0,
   },
-  headerTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: 0,
-  },
-  headerRight: {
-    display: 'flex',
-    alignItems: 'center',
-  },
+  headerTitle: { fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 },
   notifBtn: {
-    background: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "50%",
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    padding: 0,
   },
   mainBody: {
-    padding: '16px 32px 32px 32px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
+    padding: "20px 28px 32px 28px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
   },
-  banner: {
-    backgroundColor: 'transparent',
-    padding: '4px 0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  bannerText: {
-    fontSize: '14px',
-    color: '#4b5563',
-    margin: 0,
-  },
+
+  /* Banner */
+  banner: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+  bannerText: { fontSize: "12px", color: "#6b7280", margin: 0 },
   bannerBtn: {
-    backgroundColor: '#1b6b39',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    padding: '8px 16px',
-    fontSize: '13px',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    cursor: 'pointer',
+    backgroundColor: "#1f8a4c",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "6px",
+    padding: "9px 16px",
+    fontSize: "12px",
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    textDecoration: "none",
+    cursor: "pointer",
   },
-  rowGrid4: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '20px',
+
+  /* Stats Grid */
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "14px",
   },
-  card: {
-    backgroundColor: '#ffffff',
-    padding: '20px',
-    borderRadius: '10px',
-    border: '1px solid #e5e7eb',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: '90px',
+  statCard: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "16px 18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
   },
-  cardHeaderTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  statHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  cardTitle: {
-    fontSize: '13px',
-    color: '#6b7280',
-    fontWeight: '400',
-    margin: 0,
-  },
-  cardValue: {
-    fontSize: '28px',
-    fontWeight: '600',
-    color: '#111827',
-    marginTop: '10px',
-    marginBottom: 0,
-  },
-  cardSubText: {
-    fontSize: '11px',
-    color: '#9ca3af',
-    marginTop: '4px',
-  },
+  statTitle: { fontSize: "11px", fontWeight: 500, color: "#6b7280" },
+  statIconWrapper: { display: "flex", alignItems: "center", justifyContent: "center" },
+  statBody: { display: "flex", flexDirection: "column", gap: "2px" },
+  statValue: { fontSize: "22px", fontWeight: 600, color: "#111827", margin: 0 },
+  statSubtext: { fontSize: "10px", color: "#9ca3af" },
+
+  /* Table */
   tableCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '20px 24px 8px 24px',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px 18px 10px 18px",
   },
   tableHeaderContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
   },
-  tableSectionTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: 0,
+  tableSectionTitle: { fontSize: "14px", fontWeight: 600, color: "#111827", margin: 0 },
+  viewAllLink: {
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "#1f8a4c",
+    textDecoration: "none",
   },
-  reviewQueueLink: {
-    fontSize: '13px',
-    color: '#1b6b39',
-    textDecoration: 'none',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  linkDivider: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-  },
-  trHead: {
-    backgroundColor: '#f7f8f6',
-  },
+  table: { width: "100%", borderCollapse: "collapse", textAlign: "left", tableLayout: "fixed" },
   th: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#5f7161',
-    padding: '12px 16px',
-    letterSpacing: '0.5px',
+    fontSize: "9px",
+    fontWeight: 500,
+    color: "#6b7a6e",
+    padding: "10px 12px",
+    letterSpacing: "0.5px",
+    backgroundColor: "#f3f4f1",
+    textAlign: "left",
   },
-  thAction: {
-    fontSize: '11px',
-    fontWeight: '500',
-    color: '#5f7161',
-    padding: '12px 24px 12px 16px',
-    letterSpacing: '0.5px',
-    textAlign: 'right',
-  },
-  trBody: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  trBodyLast: {
-    borderBottom: 'none',
-  },
+  thAction: { textAlign: "right", paddingRight: "12px" },
+  trBody: { borderBottom: "1px solid #f1f2f0" },
+  trBodyLast: { borderBottom: "none" },
   td: {
-    fontSize: '13px',
-    color: '#374151',
-    padding: '16px',
+    fontSize: "11px",
+    color: "#374151",
+    padding: "15px 12px",
+    verticalAlign: "middle",
   },
-  tdAction: {
-    fontSize: '13px',
-    color: '#374151',
-    padding: '16px 24px 16px 16px',
-    textAlign: 'right',
-  },
+  tdAction: { textAlign: "right" },
   pendingBadge: {
-    backgroundColor: '#fef3c7',
-    color: '#b45309',
-    fontSize: '11px',
-    fontWeight: '500',
-    padding: '3px 10px',
-    borderRadius: '12px',
+    display: "inline-block",
+    backgroundColor: "#fef3c7",
+    color: "#b45309",
+    fontSize: "9px",
+    fontWeight: 500,
+    padding: "3px 8px",
+    borderRadius: "4px",
   },
-  reviewBtn: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    color: '#111827',
-    padding: '6px 14px',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontWeight: '500',
-    cursor: 'pointer',
+  actionBtn: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    color: "#374151",
+    padding: "5px 9px",
+    borderRadius: "5px",
+    fontSize: "10px",
+    fontWeight: 500,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textDecoration: "none",
+    cursor: "pointer",
   },
-  rowGrid2: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '20px',
+
+  /* Bottom Cards Grid */
+  bottomCardsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "14px",
   },
   infoCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '24px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "18px 20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
   },
-  infoCardTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#111827',
-    margin: '0 0 8px 0',
+  infoCardTitle: { fontSize: "13px", fontWeight: 600, color: "#111827", margin: 0 },
+  infoCardText: { fontSize: "11px", color: "#6b7280", margin: 0, lineHeight: 1.5 },
+  inlineLink: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "5px",
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "#1f8a4c",
+    textDecoration: "none",
+    marginTop: "4px",
   },
-  infoCardText: {
-    fontSize: '13px',
-    color: '#4b5563',
-    lineHeight: '1.5',
-    margin: '0 0 16px 0',
-  },
-  infoCardSubtitle: {
-    fontSize: '13px',
-    color: '#4b5563',
-    margin: '0 0 24px 0',
-  },
-  infoCardMeta: {
-    fontSize: '12px',
-    color: '#9ca3af',
-    margin: 0,
-  },
-  infoCardLink: {
-    fontSize: '13px',
-    color: '#1b6b39',
-    textDecoration: 'none',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
+  activityBox: { display: "flex", flexDirection: "column", gap: "2px", marginTop: "4px" },
+  activityTitle: { fontSize: "11px", fontWeight: 500, color: "#374151", margin: 0 },
+  activityMeta: { fontSize: "10px", color: "#9ca3af", margin: 0 },
 };
