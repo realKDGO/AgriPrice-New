@@ -1,0 +1,146 @@
+    .audit {
+    --green: #0a7a3e;
+    --green-dark: #086230;
+    --ink: #16241c;
+    --muted: #6b7a72;
+    --line: #e6e9e7;
+    --head: #e3e0c8;
+
+    min-height: 100vh;
+    background: linear-gradient(180deg, #ece6c2 0%, #f1edd6 40%, #f4f1e6 100%);
+    color: var(--ink);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .audit * { box-sizing: border-box; }
+
+
+    .audit-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 28px;
+    background: #fbfbfd;
+    }
+    .audit-topbar__title
+    { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .audit-icon-btn {
+
+    display: grid; place-items: center;
+    width: 36px; height: 36px;
+    background: #fff; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; cursor: pointer;
+    }
+    .audit-content {
+    padding: 24px 28px 40px; }
+    .audit-intro { 
+    display: flex; align-items: 
+    center; justify-content:
+    space-between; gap: 16px; 
+    margin-bottom: 22px; }
+
+    .audit-intro p { 
+    margin: 0; 
+    font-size: 0.85rem;
+}
+
+    .audit-btn {
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px;
+    padding: 11px 18px; 
+    font: inherit; 
+    font-size: 0.85rem; 
+    font-weight: 700;
+    color: #fff; 
+    background: var(--green); 
+    border: 0; 
+    border-radius: 8px; 
+    cursor: pointer;
+    }
+    .audit-btn:hover { 
+    background: var(--green-dark); 
+}
+
+    .audit-search {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    height: 42px; 
+    padding: 0 14px; 
+    margin-bottom: 22px;
+    background: #fff; 
+    border: 1px solid var(--line); 
+    border-radius: 8px; 
+    color: var(--muted);
+    }
+    .audit-search input { 
+        flex: 1; border: 0; 
+        outline: 0; 
+        background: transparent; 
+        font: inherit; font-size: 0.85rem; 
+        color: var(--ink); 
+    }
+    .audit-search:focus-within { 
+        border-color: var(--green); 
+    }
+
+
+    .audit-card { 
+        background: #f6f7fb; 
+        border-radius: 16px; 
+        padding: 14px; overflow-x: auto; 
+    }
+    .audit table { 
+        width: 100%; 
+        border-collapse: separate; 
+        border-spacing: 0; 
+        min-width: 760px; 
+    }
+    .audit th {
+    background: var(--head); 
+    color: #5d6a62;
+    text-align: left; 
+    font-size: 0.68rem; 
+    font-weight: 700; 
+    letter-spacing: 0.04em; 
+    text-transform: uppercase;
+    padding: 14px 18px;
+    }
+    .audit th:first-child { 
+        border-radius: 8px 0 0 8px; 
+    }
+    .audit th:last-child { 
+        border-radius: 0 8px 8px 0; 
+    }
+    .audit td { padding: 20px 18px; 
+        border-bottom: 1px solid var(--line); 
+        font-size: 0.82rem; 
+    }
+    .audit tbody tr:last-child td { 
+        border-bottom: 0; 
+    }
+    .audit .nowrap { 
+        white-space: nowrap; 
+    }
+    .audit-empty { 
+        text-align: center; 
+        color: var(--muted); 
+        padding: 40px 16px; 
+    }
+
+    .audit-btn:focus-visible, .audit-icon-btn:focus-visible { 
+        outline: 2px solid var(--green); 
+        outline-offset: 2px; 
+    }
+
+    @media (max-width: 720px) {
+    .audit-topbar, .audit-content { 
+        padding-left: 16px; 
+        padding-right: 16px; 
+    }
+    .audit-intro { 
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    }

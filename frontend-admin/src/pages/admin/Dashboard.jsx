@@ -1,229 +1,231 @@
-import { useEffect, useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  ShieldCheck,
-  Users,
-  UserCog,
-  RefreshCw,
-} from "lucide-react";
-import { api } from "../../services/portalAuth";
-import StatCard from "../../components/common/StatCard";
-import ActionButton from "../../components/common/ActionButton";
+  import "../../styles/dashboard.css";
 
-function formatAction(action) {
-  return String(action || "Activity")
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
+  const stats = [
+    { id: "total", label: "Total user accounts", value: "10", icon: "users" },
+    { id: "mao", label: "Active MAO accounts", value: "2", icon: "userCog" },
+    { id: "suspended", label: "Suspended accounts", value: "0", icon: "shield" },
+    {
+      id: "environment",
+      label: "System environment",
+      value: "Available",
+      note: "No live backend connected",
+      icon: "pulse",
+      large: true,
+    },
+  ];
 
-function actorName(activity) {
-  const actor = activity?.actor;
-  if (!actor) return "System";
-  return [actor.firstName, actor.lastName].filter(Boolean).join(" ") || "System";
-}
+  const services = [
+    { name: "Frontend", status: "Available", ok: true },
+    { name: "Backend API", status: "Not connected", ok: false },
+    { name: "Database", status: "Not connected", ok: false },
+  ];
 
-function formatDate(value) {
-  if (!value) return "No date";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "No date";
-  return date.toLocaleString([], {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+  const activities = [
+    {
+      account: "AgriPrice user",
+      activity: "Added users record",
+      date: "2026-09-06 12:29",
+      result: "Success",
+    },
+    {
+      account: "Juan dela Cruz",
+      activity: "Signed in to farmer Account",
+      date: "2026-09-05 08:20",
+      result: "Success",
+    },
+    {
+      account: "Elena Reyes",
+      activity: "Reviewed price submissions",
+      date: "2026-09-05 08:00",
+      result: "Success",
+    },
+    {
+      account: "System Administrator",
+      activity: "Reviewed account access",
+      date: "2026-09-04 15:10",
+      result: "Success",
+    },
+  ];
 
-function Dashboard() {
-  const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState("");
+  function Icon({ name }) {
+    const props = {
+      width: 20,
+      height: 20,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 1.8,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      "aria-hidden": true,
+    };
 
-  async function loadDashboard({ silent = false } = {}) {
-    if (silent) setRefreshing(true);
-    else setLoading(true);
-    setError("");
-
-    try {
-      const response = await api.get("/admin/dashboard");
-      setDashboard(response.data?.data ?? {});
-    } catch (requestError) {
-      const message =
-        requestError.response?.data?.message ||
-        requestError.response?.data?.error ||
-        requestError.message ||
-        "Unable to load the Admin Dashboard.";
-      setError(message);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    switch (name) {
+      case "users":
+        return (
+          <svg {...props}>
+            <circle cx="9" cy="8" r="3.2" />
+            <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+            <path d="M16 4.6a3.2 3.2 0 0 1 0 6.2" />
+            <path d="M18 14.4c1.8.8 3 2.7 3 5.6" />
+          </svg>
+        );
+      case "userCog":
+        return (
+          <svg {...props}>
+            <circle cx="9" cy="8" r="3.2" />
+            <path d="M3 20c0-3.3 2.7-6 6-6 1.2 0 2.3.3 3.2.9" />
+            <circle cx="18" cy="17" r="2.2" />
+            <path d="M18 12.8v1.1M18 20.1v1.1M14.4 17h1.1M20.5 17h1.1M15.5 14.5l.8.8M19.7 18.7l.8.8M15.5 19.5l.8-.8M19.7 15.3l.8-.8" />
+          </svg>
+        );
+      case "shield":
+        return (
+          <svg {...props}>
+            <path d="M12 3 5 6v5.5c0 4.4 2.9 8 7 9.5 4.1-1.5 7-5.1 7-9.5V6l-7-3Z" />
+          </svg>
+        );
+      case "pulse":
+        return (
+          <svg {...props}>
+            <path d="M3 12h4l3-8 4 16 3-8h4" />
+          </svg>
+        );
+      case "bell":
+        return (
+          <svg {...props}>
+            <path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Z" />
+            <path d="M10 20a2 2 0 0 0 4 0" />
+          </svg>
+        );
+      case "arrow":
+        return (
+          <svg {...props} width={16} height={16}>
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        );
+      default:
+        return null;
     }
   }
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  if (loading) {
+  function StatCard({ label, value, note, icon, large }) {
     return (
-      <section className="module-page">
-        <header className="page-header">
-          <div>
-            <h1 className="page-title">Admin Dashboard</h1>
-            <p className="page-description">Loading system overview and account activity...</p>
-          </div>
-        </header>
-        <div className="stats-grid">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <article className="stat-card" key={item}>
-              <div className="skeleton-block" style={{ height: 12, width: "55%" }} />
-              <div className="skeleton-block" style={{ height: 28, width: "35%", marginTop: 14 }} />
-              <div className="skeleton-block" style={{ height: 10, width: "65%", marginTop: 8 }} />
-            </article>
-          ))}
+      <article className="stat-card">
+        <div className="stat-card__top">
+          <span className="stat-card__label">{label}</span>
+          <span className="stat-card__icon">
+            <Icon name={icon} />
+          </span>
         </div>
-      </section>
+        <strong className={large ? "stat-card__value stat-card__value--large" : "stat-card__value"}>
+          {value}
+        </strong>
+        {note && <span className="stat-card__note">{note}</span>}
+      </article>
     );
   }
 
-  const recent = Array.isArray(dashboard?.recent) ? dashboard.recent : [];
+  export default function AdminDashboard() {
+    return (
+      <div className="admin">
+        <header className="admin__header">
+          <h1 className="admin__title">Admin Dashboard</h1>
+          <button type="button" className="admin__bell" aria-label="Notifications">
+            <Icon name="bell" />
+          </button>
+        </header>
 
-  return (
-    <section className="module-page">
-      <header className="page-header">
-        <div>
-          <h1 className="page-title">Admin Dashboard</h1>
-          <p className="page-description">
-            Overview of AgriPrice system and account activity.
+        <main className="admin__body">
+          <p className="admin__subtitle">
+            Manage accounts, review activity, and monitor the application.
           </p>
-        </div>
-        <div className="page-actions">
-          <ActionButton
-            variant="secondary"
-            icon={RefreshCw}
-            onClick={() => loadDashboard({ silent: true })}
-            disabled={refreshing}
-          >
-            {refreshing ? "Refreshing..." : "Refresh"}
-          </ActionButton>
-        </div>
-      </header>
 
-      {error ? (
-        <div className="dashboard-error" role="alert">
-          <AlertTriangle size={17} />
-          <div>
-            <strong>Unable to load dashboard data.</strong>
-            <p>{error}</p>
-          </div>
-          <ActionButton variant="secondary" onClick={() => loadDashboard()}>
-            Retry
-          </ActionButton>
-        </div>
-      ) : null}
+          <section className="admin__stats" aria-label="Summary">
+            {stats.map((stat) => (
+              <StatCard key={stat.id} {...stat} />
+            ))}
+          </section>
 
-      <div className="stats-grid">
-        <StatCard
-          label="Total Users"
-          value={dashboard?.total ?? 0}
-          helper="All registered accounts"
-          icon={Users}
-        />
-        <StatCard
-          label="Active Farmers"
-          value={dashboard?.activeFarmers ?? 0}
-          helper="Active FARMER accounts"
-          icon={Users}
-        />
-        <StatCard
-          label="Active MAO"
-          value={dashboard?.activeMao ?? 0}
-          helper="Active MAO accounts"
-          icon={UserCog}
-        />
-        <StatCard
-          label="Suspended"
-          value={dashboard?.suspended ?? 0}
-          helper="Accounts currently suspended"
-          icon={AlertTriangle}
-        />
-        <StatCard
-          label="Login Failures"
-          value={dashboard?.failures ?? 0}
-          helper="Last 24 hours"
-          icon={ShieldCheck}
-        />
-      </div>
-
-      <div className="dashboard-grid">
-        <section className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title">Recent Activity</h2>
-            <span className="panel-meta">Latest 10 records</span>
-          </div>
-          <div className="panel-body">
-            {recent.length ? (
-              <div className="activity-list">
-                {recent.map((activity) => (
-                  <article className="activity-item" key={activity.id}>
-                    <span className="activity-icon">
-                      {activity.status === "FAILED" ? (
-                        <AlertTriangle size={15} />
-                      ) : (
-                        <CheckCircle2 size={15} />
-                      )}
+          <section className="admin__panels">
+            <article className="panel">
+              <div className="panel__head">
+                <h2 className="panel__title">Service status</h2>
+                <a href="#service-details" className="link">
+                  View details
+                  <Icon name="arrow" />
+                </a>
+              </div>
+              <ul className="service-list">
+                {services.map((service) => (
+                  <li key={service.name} className="service-list__item">
+                    <span className="service-list__name">{service.name}</span>
+                    <span
+                      className={
+                        service.ok
+                          ? "badge badge--ok"
+                          : "badge badge--off"
+                      }
+                    >
+                      {service.status}
                     </span>
-                    <div>
-                      <div className="activity-title">
-                        {formatAction(activity.action)}
-                      </div>
-                      <div className="activity-detail">
-                        {actorName(activity)} · {activity.entityType || "System"} · {formatDate(activity.createdAt)}
-                      </div>
-                    </div>
-                  </article>
+                  </li>
                 ))}
-              </div>
-            ) : (
-              <div className="empty-state">No recent activity records found.</div>
-            )}
-          </div>
-        </section>
+              </ul>
+            </article>
 
-        <section className="panel">
-          <div className="panel-header">
-            <h2 className="panel-title">Administrative Overview</h2>
-            <span className="panel-meta">Live database counts</span>
-          </div>
-          <div className="panel-body">
-            <div className="quick-grid">
-              <div className="quick-action">
-                <span className="quick-icon"><Users size={15} /></span>
-                <span>User accounts are connected to the shared database.</span>
+            <article className="panel">
+              <h2 className="panel__title">Access administration</h2>
+              <p className="panel__text">
+                Review account status and role responsibilities. Agricultural
+                records are managed in the MAO Account.
+              </p>
+              <div className="panel__actions">
+                <button type="button" className="chip">
+                  User accounts
+                </button>
+                <button type="button" className="chip">
+                  Roles &amp; access
+                </button>
               </div>
-              <div className="quick-action">
-                <span className="quick-icon"><UserCog size={15} /></span>
-                <span>MAO accounts are managed through the Admin API.</span>
-              </div>
-              <div className="quick-action">
-                <span className="quick-icon"><Activity size={15} /></span>
-                <span>Recent audit activity is loaded from the database.</span>
-              </div>
-              <div className="quick-action">
-                <span className="quick-icon"><ShieldCheck size={15} /></span>
-                <span>Login failures are counted for the last 24 hours.</span>
-              </div>
+            </article>
+          </section>
+
+          <section className="panel activity">
+            <div className="panel__head">
+              <h2 className="panel__title">Recent system activity</h2>
+              <a href="#audit-logs" className="link">
+                All audit logs
+                <Icon name="arrow" />
+              </a>
             </div>
-          </div>
-        </section>
-      </div>
-    </section>
-  );
-}
 
-export default Dashboard;
+            <div className="activity__scroll">
+              <table className="activity__table">
+                <thead>
+                  <tr>
+                    <th>Account</th>
+                    <th>Activity</th>
+                    <th>Date &amp; time</th>
+                    <th>Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activities.map((row) => (
+                    <tr key={`${row.account}-${row.date}`}>
+                      <td>{row.account}</td>
+                      <td>{row.activity}</td>
+                      <td>{row.date}</td>
+                      <td>
+                        <span className="result">{row.result}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
