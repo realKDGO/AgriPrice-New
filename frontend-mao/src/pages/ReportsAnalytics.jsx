@@ -28,13 +28,93 @@ const navItems = [
   { to: "/reports-analytics", label: "Reports & Analytics", icon: TbFileAnalytics, active: true },
 ];
 
+const Y_MAX = 150;
+const Y_MIN = 30;
+const Y_TICKS = [150, 120, 90, 60, 30];
+const CHART_WIDTH = 1000;
+const CHART_HEIGHT = 160;
+
+const MARKET_LABELS = [
+  "Cainta Public Market",
+  "Taytay Public Market",
+  "Angono Public Market",
+  "Teresa Public Market",
+  "Antipolo Public Market",
+  "Binangonan Public Market",
+  "Teresa Public Market",
+];
+
+const PRICE_DATA = [
+  44, 44, 46, 58, 64, 67, 62, 57, 53, 53.3,
+  53, 40, 43, 35, 68, 90, 89, 92, 50, 48,
+  48, 52, 50, 53, 56, 126, 127, 130, 134,
+];
+
+const round = (value) => Math.round(value * 100) / 100;
+const formatPeso = (value) => `₱${value.toFixed(2)}`;
+
+function buildSmoothPath(points) {
+  const n = points.length;
+  const dx = [];
+  const slopes = [];
+  const tangents = [];
+
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = points[i + 1].x - points[i].x;
+    slopes[i] = (points[i + 1].y - points[i].y) / dx[i];
+  }
+
+  tangents[0] = slopes[0];
+  tangents[n - 1] = slopes[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    tangents[i] = slopes[i - 1] * slopes[i] <= 0 ? 0 : (slopes[i - 1] + slopes[i]) / 2;
+  }
+
+  for (let i = 0; i < n - 1; i++) {
+    if (slopes[i] === 0) {
+      tangents[i] = 0;
+      tangents[i + 1] = 0;
+      continue;
+    }
+    const a = tangents[i] / slopes[i];
+    const b = tangents[i + 1] / slopes[i];
+    const s = a * a + b * b;
+    if (s > 9) {
+      const t = 3 / Math.sqrt(s);
+      tangents[i] = t * a * slopes[i];
+      tangents[i + 1] = t * b * slopes[i];
+    }
+  }
+
+  let d = `M ${round(points[0].x)} ${round(points[0].y)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const c1x = points[i].x + dx[i] / 3;
+    const c1y = points[i].y + (tangents[i] * dx[i]) / 3;
+    const c2x = points[i + 1].x - dx[i] / 3;
+    const c2y = points[i + 1].y - (tangents[i + 1] * dx[i]) / 3;
+    d += ` C ${round(c1x)} ${round(c1y)}, ${round(c2x)} ${round(c2y)}, ${round(points[i + 1].x)} ${round(points[i + 1].y)}`;
+  }
+  return d;
+}
+
+const chartPoints = PRICE_DATA.map((price, i) => ({
+  x: (i / (PRICE_DATA.length - 1)) * CHART_WIDTH,
+  y: ((Y_MAX - price) / (Y_MAX - Y_MIN)) * CHART_HEIGHT,
+}));
+
+const linePath = buildSmoothPath(chartPoints);
+const areaPath = `${linePath} L ${CHART_WIDTH} ${CHART_HEIGHT} L 0 ${CHART_HEIGHT} Z`;
+
+const highestPrice = Math.max(...PRICE_DATA);
+const lowestPrice = Math.min(...PRICE_DATA);
+const averagePrice = PRICE_DATA.reduce((sum, price) => sum + price, 0) / PRICE_DATA.length;
+
 export default function ReportsAnalytics() {
   const [selectedCrop, setSelectedCrop] = useState("All crops");
   const [selectedMarket, setSelectedMarket] = useState("All markets");
 
   return (
     <div style={styles.container}>
-      {/* SIDEBAR */}
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -73,7 +153,6 @@ export default function ReportsAnalytics() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
       <div style={styles.mainContent}>
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Reports & Analytics</h1>
@@ -93,13 +172,12 @@ export default function ReportsAnalytics() {
             </button>
           </div>
 
-          {/* METRIC CARDS */}
           <div style={styles.metricsGrid}>
             <div style={styles.metricCard}>
               <div style={styles.metricIconWrapper}>
                 <LuTrendingUp size={18} color="#111827" />
               </div>
-              <div style={styles.metricValue}>₱134.00</div>
+              <div style={styles.metricValue}>{formatPeso(highestPrice)}</div>
               <div style={styles.metricLabel}>Highest Price</div>
             </div>
 
@@ -107,7 +185,7 @@ export default function ReportsAnalytics() {
               <div style={styles.metricIconWrapper}>
                 <LuTrendingDown size={18} color="#111827" />
               </div>
-              <div style={styles.metricValue}>₱35.00</div>
+              <div style={styles.metricValue}>{formatPeso(lowestPrice)}</div>
               <div style={styles.metricLabel}>Lowest Price</div>
             </div>
 
@@ -115,97 +193,84 @@ export default function ReportsAnalytics() {
               <div style={styles.metricIconWrapper}>
                 <TbChartBar size={18} color="#111827" />
               </div>
-              <div style={styles.metricValue}>₱66.63</div>
+              <div style={styles.metricValue}>{formatPeso(averagePrice)}</div>
               <div style={styles.metricLabel}>Average Price</div>
             </div>
           </div>
 
-          {/* FILTER ROW */}
-          <div style={styles.filterCard}>
-            <div style={styles.filterRow}>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Crop</label>
-                <select
-                  style={styles.select}
-                  value={selectedCrop}
-                  onChange={(e) => setSelectedCrop(e.target.value)}
-                >
-                  <option>All crops</option>
-                  <option>Rice</option>
-                  <option>Corn</option>
-                  <option>Tomato</option>
-                </select>
-              </div>
+          <div style={styles.filterRow}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Crop</label>
+              <select
+                style={styles.select}
+                value={selectedCrop}
+                onChange={(e) => setSelectedCrop(e.target.value)}
+              >
+                <option>All crops</option>
+                <option>Rice</option>
+                <option>Corn</option>
+                <option>Tomato</option>
+              </select>
+            </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Market</label>
-                <select
-                  style={styles.select}
-                  value={selectedMarket}
-                  onChange={(e) => setSelectedMarket(e.target.value)}
-                >
-                  <option>All markets</option>
-                  <option>Cainta Public Market</option>
-                  <option>Taytay Public Market</option>
-                  <option>Angono Public Market</option>
-                  <option>Teresa Public Market</option>
-                </select>
-              </div>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Market</label>
+              <select
+                style={styles.select}
+                value={selectedMarket}
+                onChange={(e) => setSelectedMarket(e.target.value)}
+              >
+                <option>All markets</option>
+                <option>Cainta Public Market</option>
+                <option>Taytay Public Market</option>
+                <option>Angono Public Market</option>
+                <option>Teresa Public Market</option>
+              </select>
             </div>
           </div>
 
-          {/* CHART CARD */}
           <div style={styles.chartCard}>
             <h3 style={styles.cardTitle}>Crop Price Report</h3>
             <div style={styles.chartWrapper}>
               <div style={styles.yAxisLabels}>
-                <span style={styles.yAxisLabelText}>₱150</span>
-                <span style={styles.yAxisLabelText}>₱120</span>
-                <span style={styles.yAxisLabelText}>₱90</span>
-                <span style={styles.yAxisLabelText}>₱60</span>
-                <span style={styles.yAxisLabelText}>₱30</span>
+                {Y_TICKS.map((tick) => (
+                  <span key={tick} style={styles.yAxisLabelText}>₱{tick}</span>
+                ))}
               </div>
 
               <div style={styles.chartArea}>
                 <div style={styles.gridLinesContainer}>
-                  <div style={styles.gridLine} />
-                  <div style={styles.gridLine} />
-                  <div style={styles.gridLine} />
-                  <div style={styles.gridLine} />
-                  <div style={styles.gridLine} />
+                  {Y_TICKS.map((tick) => (
+                    <div key={tick} style={styles.gridLine} />
+                  ))}
                 </div>
 
-                <svg style={styles.svgContainer} viewBox="0 0 1100 160" preserveAspectRatio="none">
+                <svg
+                  style={styles.svgContainer}
+                  viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+                  preserveAspectRatio="none"
+                >
                   <defs>
                     <linearGradient id="reportsGreenFade" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#2f8f5b" stopOpacity="0.15" />
                       <stop offset="100%" stopColor="#2f8f5b" stopOpacity="0.0" />
                     </linearGradient>
                   </defs>
-                  
-                  {/* Eksaktong galing sa iyong Figma SVG export ang graph path coordinates */}
+                  <path d={areaPath} fill="url(#reportsGreenFade)" />
                   <path
-                    d="M 20 135 L 75 138 L 130 132 L 185 115 L 240 100 L 295 105 L 350 100 L 405 125 L 460 145 L 515 142 L 570 65 L 625 68 L 680 130 L 735 35 L 790 32 L 845 32 L 900 35 L 955 30 L 1000 32 L 1000 160 L 20 160 Z"
-                    fill="url(#reportsGreenFade)"
-                  />
-                  <path
-                    d="M 20 135 L 75 138 L 130 132 L 185 115 L 240 100 L 295 105 L 350 100 L 405 125 L 460 145 L 515 142 L 570 65 L 625 68 L 680 130 L 735 35 L 790 32 L 845 32 L 900 35 L 955 30 L 1000 32"
+                    d={linePath}
                     fill="none"
                     stroke="#1f7a48"
                     strokeWidth="2"
                     vectorEffect="non-scaling-stroke"
                   />
                 </svg>
+              </div>
 
-                <div style={styles.xAxisLabels}>
-                  <span style={styles.xAxisLabelText}>Cainta Public Market</span>
-                  <span style={styles.xAxisLabelText}>Taytay Public Market</span>
-                  <span style={styles.xAxisLabelText}>Angono Public Market</span>
-                  <span style={styles.xAxisLabelText}>Teresa Public Market</span>
-                  <span style={styles.xAxisLabelText}>Antipolo Public Market</span>
-                  <span style={styles.xAxisLabelText}>Binangonan Public Market</span>
-                  <span style={styles.xAxisLabelText}>Teresa Public Market</span>
-                </div>
+              <div style={styles.xAxisLabels}>
+                {MARKET_LABELS.map((label, idx) => (
+                  <span key={idx} style={styles.xAxisLabelText}>{label}</span>
+                ))}
               </div>
             </div>
           </div>
@@ -348,37 +413,34 @@ const styles = {
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
     borderRadius: "10px",
-    padding: "20px 18px",
+    padding: "20px 26px",
     display: "flex",
     flexDirection: "column",
+    alignItems: "center",
     gap: "8px",
     boxSizing: "border-box",
   },
   metricIconWrapper: {
+    alignSelf: "flex-start",
     marginBottom: "4px",
   },
   metricValue: {
     fontSize: "22px",
     fontWeight: 700,
     color: "#111827",
+    textAlign: "center",
   },
   metricLabel: {
     fontSize: "12px",
     color: "#6b7280",
     fontWeight: 500,
-  },
-  filterCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "10px",
-    padding: "18px",
-    width: "100%",
-    boxSizing: "border-box",
+    textAlign: "center",
   },
   filterRow: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "16px",
+    width: "100%",
   },
   inputGroup: {
     display: "flex",
