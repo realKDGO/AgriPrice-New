@@ -2,6 +2,11 @@ import { get, post, setAccessToken, refreshSession } from "./api";
 export const authService = {
   me: () => get("/auth/me"),
   restore: refreshSession,
+  async bypass(role = "FARMER") {
+    const r = await post("/auth/bypass", { role });
+    setAccessToken(r.accessToken);
+    return r.user;
+  },
   async login(email, password, rememberMe = false) {
     const r = await post("/auth/login", { email, password, rememberMe });
     setAccessToken(r.accessToken);

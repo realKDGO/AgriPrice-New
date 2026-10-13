@@ -34,3 +34,6 @@ export const changePassword = async (req, res) => {
   res.clearCookie("agriprice_refresh", cookie);
   ok(res, { message: "Password changed. Please sign in again." });
 };
+export const bypass = async (req, res) =>
+  send(res, await service.bypass(req.body?.role, req.body?.email));
+

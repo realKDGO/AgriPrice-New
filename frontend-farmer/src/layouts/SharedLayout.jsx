@@ -56,22 +56,32 @@ const managementTitles = {
 
 function Navigation({ items, base, onClose, onNavigate }) {
   const { t } = useApp();
+  const location = useLocation();
   return (
     <nav className="side-nav">
-      {items.map(([path, label, Icon]) => (
-        <NavLink
-          key={path}
-          to={base + (path ? `/${path}` : "")}
-          end={!path}
-          onClick={() => {
-            onNavigate();
-            onClose?.();
-          }}
-        >
-          <Icon size={19} />
-          <span>{t(label)}</span>
-        </NavLink>
-      ))}
+      {items.map(([path, label, Icon]) => {
+        const isPricesActive =
+          path === "prices" &&
+          (location.pathname.startsWith(`${base}/prices`) ||
+            location.pathname.startsWith(`${base}/historical`));
+        return (
+          <NavLink
+            key={path}
+            to={base + (path ? `/${path}` : "")}
+            end={!path}
+            className={({ isActive }) =>
+              isActive || isPricesActive ? "active" : undefined
+            }
+            onClick={() => {
+              onNavigate();
+              onClose?.();
+            }}
+          >
+            <Icon size={19} />
+            <span>{t(label)}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }
@@ -93,7 +103,6 @@ export default function SharedLayout({ role = "FARMER" }) {
           "MARKET DATA",
           [
             ["prices", "Crop Prices", farmerNav[1][2]],
-            ["historical", "Historical Prices", farmerNav[1][2]],
           ],
         ],
         [
@@ -224,25 +233,34 @@ export default function SharedLayout({ role = "FARMER" }) {
       </div>
       {farmer && (
         <nav className="bottom-nav" aria-label="Farmer navigation">
-          {farmerNav.map(([path, item, Icon]) => (
-            <NavLink
-              to={base + (path ? `/${path}` : "")}
-              key={path}
-              end={!path}
-              onClick={beginLoading}
-            >
-              <Icon size={20} />
-              <span>
-                {t(
-                  item === "Crop Prices"
-                    ? "Prices"
-                    : item === "Market Recommendation"
-                      ? "Markets"
-                      : item,
-                )}
-              </span>
-            </NavLink>
-          ))}
+          {farmerNav.map(([path, item, Icon]) => {
+            const isPricesActive =
+              path === "prices" &&
+              (location.pathname.startsWith(`${base}/prices`) ||
+                location.pathname.startsWith(`${base}/historical`));
+            return (
+              <NavLink
+                to={base + (path ? `/${path}` : "")}
+                key={path}
+                end={!path}
+                className={({ isActive }) =>
+                  isActive || isPricesActive ? "active" : undefined
+                }
+                onClick={beginLoading}
+              >
+                <Icon size={20} />
+                <span>
+                  {t(
+                    item === "Crop Prices"
+                      ? "Prices"
+                      : item === "Market Recommendation"
+                        ? "Markets"
+                        : item,
+                  )}
+                </span>
+              </NavLink>
+            );
+          })}
         </nav>
       )}
       {drawer && (

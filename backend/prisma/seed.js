@@ -9,7 +9,7 @@ import {
   removeImage,
 } from "../src/services/storageService.js";
 import { env } from "../src/config/env.js";
-import { crops, markets, prices, history } from "./starterData.js";
+import { crops, markets, prices, history, weeklyPrices } from "./starterData.js";
 const stableId = (key) => {
   const h = createHash("sha256").update(`agriprice-seed:${key}`).digest("hex");
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
@@ -121,7 +121,7 @@ try {
           transportBaseCost: m.transport,
         },
       });
-    for (const p of [...history, ...prices]) {
+    for (const p of [...history, ...weeklyPrices, ...prices]) {
       const cropId = stableId(p.cropId);
       const marketId = stableId(p.marketId);
       const date = new Date(p.date);
@@ -293,7 +293,7 @@ try {
         },
       });
     console.log(
-      "Local presentation data seeded: accounts, crops, crop photos, markets, prices, history, forecasts, notifications, activity, and contact records.",
+      "Local presentation data seeded: accounts, crops, crop photos, markets, prices, history, weekly prices, forecasts, notifications, activity, and contact records.",
     );
   }
 } finally {

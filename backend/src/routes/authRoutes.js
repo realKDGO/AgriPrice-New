@@ -24,6 +24,7 @@ for (const action of ["register", "login"])
     wrap(c[action]),
   );
 authRouter.post("/refresh", wrap(c.refresh));
+authRouter.post("/bypass", wrap(c.bypass));
 authRouter.post("/logout", wrap(c.logout));
 authRouter.get("/me", authenticate, c.me);
 authRouter.post(

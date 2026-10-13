@@ -12,3 +12,4 @@ for (const signal of ["SIGTERM", "SIGINT"])
       process.exit(0);
     }),
   );
+

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Field } from "../../components/common/UI";
@@ -88,11 +88,32 @@ function Password({
 }
 
 export default function Auth({ mode = "login" }) {
-  const { login, register, notify } = useApp();
+  const { session, login, register, notify, bypass } = useApp();
   const navigate = useNavigate();
   const formRef = useRef(null);
   const isRegister = mode === "register";
   const isForgot = mode === "forgot";
+
+  useEffect(() => {
+    if (session && !isRegister && !isForgot) {
+      navigate(destination(), { replace: true });
+    }
+  }, [session, isRegister, isForgot, navigate]);
+
+  const handleBypass = async () => {
+    setBusy(true);
+    try {
+      const user = await bypass("FARMER");
+      if (user) {
+        notify("Signed in via presentation bypass.");
+        navigate(destination());
+      }
+    } catch (error) {
+      applyServerErrors(error);
+    } finally {
+      setBusy(false);
+    }
+  };
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
@@ -375,6 +396,17 @@ export default function Auth({ mode = "login" }) {
                     ? "Check Recovery Options"
                     : "Sign In"}
             </button>
+            {!isRegister && !isForgot && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={handleBypass}
+                className="button secondary w-full"
+                style={{ marginTop: "10px" }}
+              >
+                ⚡ Quick Bypass Sign-In (Farmer)
+              </button>
+            )}
           </div>
         </form>
         <p className="auth-switch">
