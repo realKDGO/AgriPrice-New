@@ -29,6 +29,22 @@ const navItems = [
 const PERIODS = ["1 Month", "3 Months", "6 Months"];
 
 const forecastDataMap = {
+  "1 Month": {
+    periodLabel: "1 Month",
+    predictedPrice: "₱45.81/kg",
+    confidence: "88%",
+    trend: "Increasing",
+    percentage: "1.8% INCREASE",
+    xAxis: ["Oct 1", "Oct 15", "Nov 1"],
+    svgPath: "M 0 120 L 225 85 L 450 55 L 450 160 L 0 160 Z",
+    svgLine: "M 0 120 L 225 85 L 450 55",
+    axisLabels: ["₱46", "₱45.5", "₱45", "₱44.5", "₱44"],
+    tableRows: [
+      { date: "Oct 1, 2026", period: "Week 1", price: "₱45.00" },
+      { date: "Oct 15, 2026", period: "Week 3", price: "₱45.40" },
+      { date: "Nov 1, 2026", period: "Month 1", price: "₱45.81" },
+    ],
+  },
   "3 Months": {
     periodLabel: "3 Months",
     predictedPrice: "₱47.43/kg",
@@ -45,6 +61,25 @@ const forecastDataMap = {
       { date: "Dec 1, 2026", period: "Month 3", price: "₱47.43" },
     ],
   },
+  "6 Months": {
+    periodLabel: "6 Months",
+    predictedPrice: "₱49.20/kg",
+    confidence: "74%",
+    trend: "Increasing",
+    percentage: "9.2% INCREASE",
+    xAxis: ["Oct 1", "Nov 1", "Dec 1", "Jan 1", "Feb 1", "Mar 1"],
+    svgPath: "M 0 135 L 90 118 L 180 98 L 270 70 L 360 40 L 450 12 L 450 160 L 0 160 Z",
+    svgLine: "M 0 135 L 90 118 L 180 98 L 270 70 L 360 40 L 450 12",
+    axisLabels: ["₱49.5", "₱48.5", "₱47.5", "₱46.5", "₱45.5"],
+    tableRows: [
+      { date: "Oct 1, 2026", period: "Month 1", price: "₱45.81" },
+      { date: "Nov 1, 2026", period: "Month 2", price: "₱46.50" },
+      { date: "Dec 1, 2026", period: "Month 3", price: "₱47.43" },
+      { date: "Jan 1, 2027", period: "Month 4", price: "₱47.95" },
+      { date: "Feb 1, 2027", period: "Month 5", price: "₱48.60" },
+      { date: "Mar 1, 2027", period: "Month 6", price: "₱49.20" },
+    ],
+  },
 };
 
 export default function ForecastInformation() {
@@ -53,7 +88,6 @@ export default function ForecastInformation() {
 
   return (
     <div style={styles.container}>
-      {/* SIDEBAR */}
       <aside style={styles.sidebar}>
         <div style={styles.topContent}>
           <div style={styles.brandContainer}>
@@ -92,7 +126,6 @@ export default function ForecastInformation() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
       <div style={styles.mainContent}>
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Forecast Information</h1>
@@ -323,7 +356,6 @@ const styles = {
     fontSize: "13px",
   },
 
-  /* Main */
   mainContent: { flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0 },
   header: {
     backgroundColor: "#ffffff",
@@ -356,7 +388,6 @@ const styles = {
   },
   bannerText: { fontSize: "12px", color: "#6b7280", margin: 0 },
 
-  /* Top Card / Selections */
   topCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
@@ -426,7 +457,6 @@ const styles = {
     whiteSpace: "nowrap",
   },
 
-  /* Middle Grid */
   middleGrid: {
     display: "grid",
     gridTemplateColumns: "2fr 1fr",
@@ -499,7 +529,6 @@ const styles = {
   },
   xAxisLabelText: { fontSize: "10px", color: "#6b7280" },
 
-  /* Summary Card */
   summaryCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
@@ -549,7 +578,6 @@ const styles = {
     marginTop: "2px",
   },
 
-  /* Table Card */
   tableCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
