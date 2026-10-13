@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Brand } from "../../components/common/UI";
+import { useApp } from "../../hooks/useApp";
 
 const features = [
   [
@@ -51,6 +52,7 @@ const features = [
 ];
 
 export default function Landing() {
+  const { session } = useApp();
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -75,12 +77,20 @@ export default function Landing() {
             ))}
           </nav>
           <div className="public-actions">
-            <Link className="text-link" to="/login">
-              Sign In
-            </Link>
-            <Link className="button" to="/register">
-              Create Account
-            </Link>
+            {session ? (
+              <Link className="button" to="/farmer">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link className="text-link" to="/login">
+                  Sign In
+                </Link>
+                <Link className="button" to="/register">
+                  Create Account
+                </Link>
+              </>
+            )}
           </div>
           <button
             className="icon-button public-menu"
@@ -117,9 +127,15 @@ export default function Landing() {
               compare markets, and estimate potential earnings before selling.
             </p>
             <div className="hero-actions">
-              <Link className="button hero-create" to="/register">
-                Create Account <ArrowRight size={17} />
-              </Link>
+              {session ? (
+                <Link className="button hero-create" to="/farmer">
+                  Go to Dashboard <ArrowRight size={17} />
+                </Link>
+              ) : (
+                <Link className="button hero-create" to="/register">
+                  Create Account <ArrowRight size={17} />
+                </Link>
+              )}
               <a className="button tertiary hero-explore" href="#features">
                 Explore Features <ArrowRight size={17} />
               </a>

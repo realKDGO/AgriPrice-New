@@ -117,3 +117,37 @@ export const history = crops.flatMap((c, cropIndex) =>
     }),
   ),
 );
+// Weekly price records for the current month (4 weeks) used for the
+// 1-month forecast chart weekly breakdown. Week 1 is slightly lower than
+// the monthly baseline and gradually trends upward by week 4.
+export const weeklyPrices = crops.flatMap((c, cropIndex) =>
+  markets.flatMap((m, marketIndex) => {
+    const marketOffset = [0, 2, -2, 3, -1, 1, 4][marketIndex];
+    const base = c.base + marketOffset;
+    // Weekly deltas: mild up-trend with a small dip on week 3
+    const weeklyDeltas = [-2.5, -1.2, -1.8, 0];
+    return weeklyDeltas.map((delta, wi) => {
+      // Weeks anchored to the 1st, 8th, 15th, 22nd of September 2026
+      const day = 1 + wi * 7;
+      const date = new Date(Date.UTC(2026, 8, day)); // month 8 = September
+      const price = Math.max(
+        1,
+        Math.round((base + delta + Math.sin(cropIndex * 0.7 + wi) * 0.5) * 100) / 100,
+      );
+      const previous = Math.max(
+        1,
+        Math.round((price - (0.8 + Math.sin(wi + cropIndex) * 0.6)) * 100) / 100,
+      );
+      return {
+        id: `weekly-${c.id}-${m.id}-w${wi + 1}`,
+        cropId: c.id,
+        marketId: m.id,
+        date: date.toISOString().slice(0, 10),
+        price,
+        previous,
+        status: "Verified",
+        source: "Weekly MAO record",
+      };
+    });
+  }),
+);

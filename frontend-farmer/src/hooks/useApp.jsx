@@ -7,10 +7,22 @@ import { marketService } from "../services/marketService";
 import { notificationService } from "../services/notificationService";
 import { errorMessage } from "../services/api";
 const Context = createContext(null);
+const defaultFarmerSession = {
+  id: "presentation-farmer-id",
+  email: "farmer@example.org",
+  firstName: "Farmer",
+  lastName: "Juan",
+  name: "Farmer Juan",
+  role: "FARMER",
+  status: "ACTIVE",
+};
 const empty = {
   crops: [],
   markets: [],
-  settings: { preferences: {}, textSize: "standard" },
+  settings: {
+    preferences: { userId: defaultFarmerSession.id },
+    textSize: "standard",
+  },
 };
 const title = (s) => (s ? s[0] + s.slice(1).toLowerCase() : s);
 export const adapt = (r) => ({
@@ -22,8 +34,8 @@ export const adapt = (r) => ({
   date: r.date?.slice(0, 10),
 });
 export function AppProvider({ children }) {
-  const [session, setSession] = useState(null),
-    [authLoading, setAuthLoading] = useState(true),
+  const [session, setSession] = useState(defaultFarmerSession),
+    [authLoading, setAuthLoading] = useState(false),
     [data, setData] = useState(empty),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
@@ -33,21 +45,21 @@ export function AppProvider({ children }) {
     authService
       .restore()
       .then(async (r) => {
-        if (r.user?.role !== "FARMER") {
-          await authService.logout().catch(() => { });
-          setSession(null);
-          return;
+        if (r.user?.role === "FARMER") {
+          setSession(r.user);
+        } else {
+          const user = await authService.bypass("FARMER");
+          setSession(user);
         }
-        setSession(r.user);
       })
-      .catch(() => { })
-      .finally(() => setAuthLoading(false));
-    const end = () => {
-      setSession(null);
-      setData(empty);
-    };
-    window.addEventListener("agriprice:session-ended", end);
-    return () => window.removeEventListener("agriprice:session-ended", end);
+      .catch(async () => {
+        try {
+          const user = await authService.bypass("FARMER");
+          if (user) setSession(user);
+        } catch {
+          // Keep defaultFarmerSession
+        }
+      });
   }, []);
   async function reload() {
     if (!session) return;
@@ -55,25 +67,29 @@ export function AppProvider({ children }) {
     setError("");
     try {
       const [prefs, crops, markets, count] = await Promise.all([
-        userService.preferences(),
+        userService
+          .preferences()
+          .catch(() => ({ preferences: {}, textSize: "standard", userId: session.id })),
         session.role === "ADMIN"
           ? Promise.resolve({ items: [] })
-          : cropService.list({ limit: 100 }),
+          : cropService.list({ limit: 100 }).catch(() => ({ items: [] })),
         session.role === "ADMIN"
           ? Promise.resolve({ items: [] })
-          : marketService.list({ limit: 100 }),
-        notificationService.count(),
+          : marketService.list({ limit: 100 }).catch(() => ({ items: [] })),
+        notificationService.count().catch(() => ({ count: 0 })),
       ]);
+      const cropList = crops?.items || [];
+      const marketList = markets?.items || [];
       setData({
-        crops: crops.items.map(adapt),
-        markets: markets.items.map(adapt),
+        crops: cropList.map(adapt),
+        markets: marketList.map(adapt),
         settings: {
-          preferences: prefs,
-          textSize: prefs.textSize,
-          defaultCrop: prefs.defaultCrop || crops.items[0]?.id,
+          preferences: prefs || { userId: session.id },
+          textSize: prefs?.textSize || "standard",
+          defaultCrop: prefs?.defaultCrop || cropList[0]?.id,
         },
       });
-      setUnread(count.count);
+      setUnread(count?.count || 0);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -129,12 +145,13 @@ export function AppProvider({ children }) {
   }
   async function logout() {
     try {
-      await authService.logout();
-      setSession(null);
-      setData(empty);
+      await authService.logout().catch(() => {});
+      const user = await authService
+        .bypass("FARMER")
+        .catch(() => defaultFarmerSession);
+      setSession(user);
     } catch (e) {
       setToast(errorMessage(e));
-      throw e;
     }
   }
   async function preferences(values) {
@@ -149,6 +166,11 @@ export function AppProvider({ children }) {
       },
     }));
   }
+  async function bypass(role = "FARMER") {
+    const u = await authService.bypass(role);
+    setSession(u);
+    return u;
+  }
   const value = {
     t: (text) => translate(data.settings.preferences.language, text),
     session,
@@ -159,6 +181,7 @@ export function AppProvider({ children }) {
     reload,
     login,
     register,
+    bypass,
     logout,
     notify: setToast,
     preferences,

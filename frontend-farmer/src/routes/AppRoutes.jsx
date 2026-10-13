@@ -31,33 +31,20 @@ import {
   Notifications,
 } from "../pages/farmer/Account";
 function Guard({ role }) {
-  const { session, authLoading, data, loading, error, reload } = useApp();
-  if (error)
-    return (
-      <div className="notice" role="alert">
-        {error}
-        <button className="button" onClick={reload}>
-          Try Again
-        </button>
-      </div>
-    );
-  if (
-    authLoading ||
-    (session && (loading || !data.settings.preferences.userId))
-  )
-    return <PageSkeleton chrome />;
-  return session?.role === role && session.status === "ACTIVE" ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" replace />
-  );
+  const { authLoading, loading } = useApp();
+  if (authLoading || loading) return <PageSkeleton chrome />;
+  return <Outlet />;
 }
 export default function AppRoutes() {
   return (
     <Suspense fallback={<PageSkeleton chrome />}>
       <Routes>
+        <Route path="/" element={<Navigate to="/farmer" replace />} />
+        <Route path="/login" element={<Navigate to="/farmer" replace />} />
+        <Route path="/register" element={<Navigate to="/farmer" replace />} />
+        <Route path="/forgot-password" element={<Navigate to="/farmer" replace />} />
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Landing />} />
           {["privacy-policy", "terms", "cookie-policy"].map((kind) => (
             <Route
               key={kind}
@@ -65,15 +52,6 @@ export default function AppRoutes() {
               element={<Legal kind={kind} />}
             />
           ))}
-          <Route path="/login" element={<Auth key="login" />} />
-          <Route
-            path="/register"
-            element={<Auth key="register" mode="register" />}
-          />
-          <Route
-            path="/forgot-password"
-            element={<Auth key="forgot" mode="forgot" />}
-          />
         </Route>
         <Route element={<Guard role="FARMER" />}>
           <Route path="/farmer" element={<FarmerLayout />}>
@@ -94,14 +72,7 @@ export default function AppRoutes() {
         </Route>
         <Route
           path="*"
-          element={
-            <div className="loading">
-              <h1>Page not found</h1>
-              <Link className="text-link" to="/">
-                Return to AgriPrice
-              </Link>
-            </div>
-          }
+          element={<Navigate to="/farmer" replace />}
         />
       </Routes>
     </Suspense>

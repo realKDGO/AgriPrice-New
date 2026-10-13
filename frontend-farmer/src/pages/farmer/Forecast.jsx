@@ -90,14 +90,39 @@ export default function Forecast() {
                 <h2>Forecast Chart · {crop?.name}</h2>
                 <PriceChart
                   forecast
-                  data={rows.map((r) => ({
-                    ...r,
-                    price: Number(r.predictedPrice),
-                    label: new Date(r.targetDate).toLocaleDateString("en-PH", {
-                      month: "short",
-                      year: "2-digit",
-                    }),
-                  }))}
+                  data={(() => {
+                    if (horizon !== 1) {
+                      // 3 or 6 months: one point per month
+                      return rows.map((r) => ({
+                        ...r,
+                        price: Number(r.predictedPrice),
+                        label: new Date(r.targetDate).toLocaleDateString("en-PH", {
+                          month: "short",
+                          year: "2-digit",
+                        }),
+                      }));
+                    }
+                    // 1 month: expand into 4 weekly points
+                    const monthRow = rows[0];
+                    if (!monthRow) return [];
+                    const baseline = query.data?.baselinePrice
+                      ? Number(query.data.baselinePrice)
+                      : Number(monthRow.predictedPrice) * 0.98;
+                    const target = Number(monthRow.predictedPrice);
+                    const targetDate = new Date(monthRow.targetDate);
+                    return Array.from({ length: 4 }, (_, wi) => {
+                      const fraction = (wi + 1) / 4;
+                      const weekDate = new Date(targetDate);
+                      weekDate.setDate(1 + wi * 7);
+                      return {
+                        ...monthRow,
+                        price: Number(
+                          (baseline + (target - baseline) * fraction).toFixed(2),
+                        ),
+                        label: `Wk ${wi + 1} ${targetDate.toLocaleDateString("en-PH", { month: "short" })}`,
+                      };
+                    });
+                  })()}
                 />
               </Panel>
               <Panel className="forecast-summary">
