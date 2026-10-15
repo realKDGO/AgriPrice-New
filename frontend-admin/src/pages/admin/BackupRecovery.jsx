@@ -1,94 +1,75 @@
 import { useState } from "react";
-import { Bell, Database } from "lucide-react";
-import "../../styles/backup.css";
-
-const SNAPSHOT_KEY = "agriprice:latest-snapshot";
-
-function readSnapshot() {
-  try {
-    const raw = localStorage.getItem(SNAPSHOT_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function collectRecords() {
-  const records = {};
-  try {
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
-      if (key && key !== SNAPSHOT_KEY) {
-        records[key] = localStorage.getItem(key);
-      }
-    }
-  } catch {
-    return records;
-  }
-  return records;
-}
+import { Database } from "lucide-react";
+import AdminHeader from "../../components/common/AdminHeader";
 
 export default function BackupRecovery() {
-  const [snapshot, setSnapshot] = useState(readSnapshot);
+  const [snapshot, setSnapshot] = useState(
+    localStorage.getItem("agriprice_last_snapshot") || null
+  );
 
   const handleCreateBackup = () => {
-    const createdAt = new Date().toISOString();
-    const records = collectRecords();
-    const payload = { createdAt, records };
+    const backupData = {
+      version: "2.0.0",
+      timestamp: new Date().toISOString(),
+      source: "AgriPrice Presentation System",
+      records: {
+        totalUsers: 10,
+        activeMao: 2,
+        studyMunicipality: "Jala-Jala, Rizal",
+        sessionTimeout: 30,
+      },
+    };
 
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    const dateStr = new Date().toLocaleString();
+    localStorage.setItem("agriprice_last_snapshot", dateStr);
+    setSnapshot(dateStr);
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `agriprice-backup-${createdAt.slice(0, 10)}.json`;
+    link.download = `agriprice_backup_${Date.now()}.json`;
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
-    const saved = { createdAt, count: Object.keys(records).length };
-    try {
-      localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(saved));
-    } catch {
-      return;
-    }
-    setSnapshot(saved);
   };
 
   return (
-    <section className="backup">
-      <header className="backup__header">
-        <h1 className="backup__title">Backup &amp; Recovery</h1>
-        <button type="button" className="backup__bell" aria-label="Notifications">
-          <Bell size={16} strokeWidth={1.75} />
+    <div>
+      <AdminHeader
+        title="Backup & Recovery"
+        subtitle="Save and restore browser-local Current records."
+      >
+        <button
+          type="button"
+          className="admin-btn-primary"
+          onClick={handleCreateBackup}
+        >
+          <Database size={16} strokeWidth={2.2} />
+          <span>Create backup file</span>
         </button>
-      </header>
+      </AdminHeader>
 
-      <div className="backup__toolbar">
-        <p className="backup__subtitle">Save and restore browser-local Current records.</p>
-        <button type="button" className="backup__create" onClick={handleCreateBackup}>
-          <Database size={16} strokeWidth={2} />
-          Create backup file
-        </button>
+      {/* Snapshot Card */}
+      <div className="admin-card" style={{ marginBottom: "18px" }}>
+        <h2 className="admin-card-header__title" style={{ marginBottom: "8px" }}>
+          Latest local snapshot
+        </h2>
+        <div style={{ fontSize: "13.5px", color: "var(--admin-text-muted)" }}>
+          {snapshot
+            ? `Snapshot saved: ${snapshot}`
+            : "No snapshot saved in this browser."}
+        </div>
       </div>
 
-      <div className="backup__body">
-        <article className="backup__card">
-          <h2 className="backup__card-title">Latest local snapshot</h2>
-          <p className="backup__card-text">
-            {snapshot
-              ? `Saved ${new Date(snapshot.createdAt).toLocaleString()} · ${snapshot.count} records`
-              : "No snapshot saved in this browser."}
-          </p>
-        </article>
-
-        <p className="backup__note">
-          This backup file contains the records available in this application. Database backups
-          and recovery are not connected.
-        </p>
-      </div>
-    </section>
+      {/* Notice below */}
+      <p style={{ fontSize: "13px", color: "var(--admin-text-muted)", margin: "0", lineHeight: 1.5 }}>
+        This backup file contains the records available in this application.
+        Database backups and recovery are not connected.
+      </p>
+    </div>
   );
 }

@@ -1,25 +1,431 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { Field } from "../../components/common/UI";
 import { useApp } from "../../hooks/useApp";
 import { authService } from "../../services/authService";
 
-function validEmail(value) {
-  const email=value.trim();
-  const ok=/^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,63}$/i.test(email);
-  return ok && !new Set(["example","invalid","local","localhost","test"]).has(email.split(".").at(-1)?.toLowerCase());
+const destination = () => "/";
+
+const publicEmailPattern =
+  /^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,63}$/i;
+const reservedEmailSuffixes = new Set([
+  "example",
+  "invalid",
+  "local",
+  "localhost",
+  "test",
+]);
+
+function hasPublicEmailFormat(value) {
+  const email = value.trim();
+  const suffix = email.split(".").at(-1)?.toLowerCase();
+  return publicEmailPattern.test(email) && !reservedEmailSuffixes.has(suffix);
 }
-function ErrorText({id,children}){return children?<small id={id} className="auth-field-error" role="alert">{children}</small>:null}
-function TextField({label,name,error,...props}){const id=`${name}-error`;return <Field label={label}><input name={name} aria-label={label} aria-invalid={!!error} aria-describedby={error?id:undefined} {...props}/><ErrorText id={id}>{error}</ErrorText></Field>}
-function Password({value,onChange,onBlur,error}){const[show,setShow]=useState(false);return <Field label="Password"><div className="password-field"><input name="password" aria-label="Password" type={show?"text":"password"} required autoComplete="current-password" value={value} onChange={onChange} onBlur={onBlur} aria-invalid={!!error}/><button type="button" className="password-toggle" aria-label={show?"Hide password":"Show password"} onClick={()=>setShow(!show)}>{show?<EyeOff size={18}/>:<Eye size={18}/>}</button></div><ErrorText id="password-error">{error}</ErrorText></Field>}
-export default function Auth({mode="login"}){
- const{login,notify}=useApp(),navigate=useNavigate(),formRef=useRef(null),forgot=mode==="forgot";
- const[busy,setBusy]=useState(false),[errors,setErrors]=useState({}),[form,setForm]=useState({email:"",password:"",rememberMe:false});
- const msg=(n,v=form)=>{if(n==="email"){if(!v.email.trim())return"Email address is required.";if(!validEmail(v.email))return"Enter an email address with a valid mail domain."}if(n==="password"&&!v.password)return"Password is required.";return""};
- const fields=()=>forgot?["email"]:["email","password"];
- const setValue=(n,v)=>{const next={...form,[n]:v};setForm(next);if(errors[n])setErrors(c=>({...c,[n]:msg(n,next)}))};
- const validate=()=>{const next=Object.fromEntries(fields().map(n=>[n,msg(n)]));setErrors(next);const first=fields().find(n=>next[n]);if(first)requestAnimationFrame(()=>formRef.current?.querySelector(`[name="${first}"]`)?.focus());return !first};
- const submit=async e=>{e.preventDefault();if(!validate())return;setBusy(true);try{if(forgot){const r=await authService.forgot(form.email.trim());notify(r.message);return}const u=await login(form.email.trim(),form.password,form.rememberMe);if(u){notify("Signed in successfully.");navigate("/")}}catch(err){const r=err.response,n={};if(r?.status===401)n.password="The email address or password is incorrect.";else n.email=r?.data?.message||"Unable to continue. Try again.";setErrors(n)}finally{setBusy(false)}};
- return <div className="auth-shell"><aside className="auth-story"><span className="auth-wordmark">AgriPrice</span><img className="auth-hero-logo" src="/images/agriprice-white.png" alt="" aria-hidden="true"/></aside><section className="auth-form"><h1>{forgot?"Forgot your password?":"Sign in"}</h1><p className="muted auth-description">{forgot?"Enter the email address associated with your AgriPrice account.":"Enter your credentials to access your dashboard."}</p><form ref={formRef} onSubmit={submit} noValidate><div className="form-stack"><TextField label="Email Address" name="email" type="email" required autoComplete="email" placeholder="you@email.com" value={form.email} onChange={e=>setValue("email",e.target.value)} onBlur={()=>setErrors(c=>({...c,email:msg("email")}))} error={errors.email}/>{!forgot&&<><Password value={form.password} onChange={e=>setValue("password",e.target.value)} onBlur={()=>setErrors(c=>({...c,password:msg("password")}))} error={errors.password}/><div className="auth-options"><label className="auth-check"><input name="rememberMe" type="checkbox" checked={form.rememberMe} onChange={e=>setValue("rememberMe",e.target.checked)}/><span>Remember me</span></label><Link className="text-link" to="/forgot-password">Forgot Password?</Link></div></>}<button disabled={busy} className="button w-full">{busy?"Please wait…":forgot?"Check Recovery Options":"Sign In"}</button></div></form>{forgot&&<p className="auth-switch"><Link className="text-link" to="/login">Remember your password? Sign in</Link></p>}</section></div>
+
+function ErrorText({ id, children }) {
+  return children ? (
+    <small id={id} className="auth-field-error" role="alert">
+      {children}
+    </small>
+  ) : null;
+}
+
+function Field({ label, children }) {
+  return (
+    <div className="field">
+      <span>{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function TextField({ label, name, error, ...props }) {
+  const errorId = `${name}-error`;
+  return (
+    <Field label={label}>
+      <input
+        name={name}
+        aria-label={label}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
+        {...props}
+      />
+      <ErrorText id={errorId}>{error}</ErrorText>
+    </Field>
+  );
+}
+
+function Password({
+  name,
+  value,
+  onChange,
+  onBlur,
+  error,
+  label = "Password",
+  autoComplete = "current-password",
+}) {
+  const [show, setShow] = useState(false);
+  const errorId = `${name}-error`;
+  return (
+    <Field label={label}>
+      <div className="password-field">
+        <input
+          name={name}
+          aria-label={label}
+          type={show ? "text" : "password"}
+          required
+          autoComplete={autoComplete}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          aria-label={show ? "Hide password" : "Show password"}
+          onClick={() => setShow(!show)}
+        >
+          {show ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+      <ErrorText id={errorId}>{error}</ErrorText>
+    </Field>
+  );
+}
+
+export default function Auth({ mode = "login" }) {
+  const { session, login, notify } = useApp();
+  const navigate = useNavigate();
+  const formRef = useRef(null);
+  const isRegister = mode === "register";
+  const isForgot = mode === "forgot";
+
+  useEffect(() => {
+    if (session && !isRegister && !isForgot) {
+      navigate(destination(), { replace: true });
+    }
+  }, [session, isRegister, isForgot, navigate]);
+
+  const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirm: "",
+    rememberMe: false,
+    acceptTerms: false,
+  });
+
+  const messageFor = (name, values = form) => {
+    const value = values[name];
+    if (name === "firstName" && !value.trim()) return "First name is required.";
+    if (name === "lastName" && !value.trim()) return "Last name is required.";
+    if (name === "email") {
+      if (!value.trim()) return "Email address is required.";
+      if (!hasPublicEmailFormat(value))
+        return "Enter an email address with a valid mail domain.";
+    }
+    if (name === "password") {
+      if (!value) return "Password is required.";
+      if (isRegister && value.length < 8)
+        return "Password must contain at least 8 characters.";
+    }
+    if (name === "confirm") {
+      if (!value) return "Please confirm your password.";
+      if (value !== values.password) return "Passwords do not match.";
+    }
+    if (name === "acceptTerms" && !value)
+      return "You must agree to the Terms and acknowledge the Privacy Policy.";
+    return "";
+  };
+
+  const relevantFields = () => [
+    ...(isRegister ? ["firstName", "lastName"] : []),
+    "email",
+    ...(!isForgot ? ["password"] : []),
+    ...(isRegister ? ["confirm", "acceptTerms"] : []),
+  ];
+
+  const setValue = (name, value) => {
+    const next = { ...form, [name]: value };
+    setForm(next);
+    if (errors[name])
+      setErrors((current) => ({ ...current, [name]: messageFor(name, next) }));
+    if (name === "password" && errors.confirm)
+      setErrors((current) => ({
+        ...current,
+        confirm: messageFor("confirm", next),
+      }));
+  };
+
+  const validateField = (name) =>
+    setErrors((current) => ({ ...current, [name]: messageFor(name) }));
+
+  const focusField = (name) =>
+    requestAnimationFrame(() =>
+      formRef.current?.querySelector(`[name="${name}"]`)?.focus(),
+    );
+
+  const validateForm = () => {
+    const next = Object.fromEntries(
+      relevantFields().map((name) => [name, messageFor(name)]),
+    );
+    setErrors(next);
+    const first = relevantFields().find((name) => next[name]);
+    if (first) focusField(first);
+    return !first;
+  };
+
+  const applyServerErrors = (error) => {
+    const response = error.response;
+    const next = {};
+    for (const issue of response?.data?.errors || []) {
+      const key = issue.field === "confirmPassword" ? "confirm" : issue.field;
+      if (relevantFields().includes(key)) next[key] = issue.message;
+    }
+    if (!Object.keys(next).length) {
+      if (isRegister && response?.status === 409)
+        next.email = "An account with this email address already exists.";
+      else if (!isRegister && !isForgot && response?.status === 401)
+        next.password = "The email address or password is incorrect.";
+      else if (!isRegister && !isForgot && response?.status === 403)
+        next.email =
+          response?.data?.message ||
+          "Access denied. This portal is restricted to MAO accounts only.";
+      else
+        next.email =
+          response?.data?.message || "Unable to continue. Try again.";
+    }
+    setErrors((current) => ({ ...current, ...next }));
+    const first = relevantFields().find((name) => next[name]);
+    if (first) focusField(first);
+  };
+
+  async function submit(event) {
+    event.preventDefault();
+    if (!validateForm()) return;
+    setBusy(true);
+    try {
+      if (isForgot) {
+        const result = await authService.forgot(form.email.trim());
+        notify(result.message);
+        return;
+      }
+      if (isRegister) {
+        const user = await authService.register({
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          confirmPassword: form.confirm,
+          acceptTerms: form.acceptTerms,
+          role: "MAO",
+        });
+        if (user) {
+          notify("MAO account created. Awaiting admin approval.");
+          navigate("/login");
+        }
+        return;
+      }
+      const user = await login(
+        form.email.trim(),
+        form.password,
+        form.rememberMe,
+      );
+      if (user) {
+        notify("Signed in successfully.");
+        navigate(destination());
+      }
+    } catch (error) {
+      applyServerErrors(error);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const heading = isRegister
+    ? "Create MAO account"
+    : isForgot
+      ? "Forgot your password?"
+      : "MAO Sign In";
+  const description = isRegister
+    ? "Register as a Municipal Agriculture Office officer to manage crop pricing and market data."
+    : isForgot
+      ? "Enter the email address associated with your MAO account."
+      : "Enter your MAO credentials to access the officer dashboard.";
+
+  return (
+    <div className={`auth-shell ${isRegister ? "auth-register" : ""}`}>
+      <aside className="auth-story">
+        <span className="auth-wordmark">AgriPrice</span>
+        <div className="auth-story-copy">
+          <h1>Municipal Agriculture Office</h1>
+          <p>
+            Manage crop prices, validate market data, and coordinate agricultural
+            information across your municipality.
+          </p>
+        </div>
+        <blockquote className="auth-quote">
+          <p>
+            Access is restricted to authorized Municipal Agriculture Office (MAO)
+            officers only. Unauthorized access attempts are logged and monitored.
+          </p>
+          <footer>AgriPrice Security Policy</footer>
+        </blockquote>
+      </aside>
+      <section className="auth-form">
+        <h1>{heading}</h1>
+        <p className="muted auth-description">{description}</p>
+
+        <form ref={formRef} onSubmit={submit} noValidate>
+          <div className="form-stack">
+            {isRegister && (
+              <div className="form-grid">
+                <TextField
+                  label="First Name"
+                  name="firstName"
+                  required
+                  autoComplete="given-name"
+                  placeholder="Juan"
+                  value={form.firstName}
+                  onChange={(event) =>
+                    setValue("firstName", event.target.value)
+                  }
+                  onBlur={() => validateField("firstName")}
+                  error={errors.firstName}
+                />
+                <TextField
+                  label="Last Name"
+                  name="lastName"
+                  required
+                  autoComplete="family-name"
+                  placeholder="Dela Cruz"
+                  value={form.lastName}
+                  onChange={(event) => setValue("lastName", event.target.value)}
+                  onBlur={() => validateField("lastName")}
+                  error={errors.lastName}
+                />
+              </div>
+            )}
+            <TextField
+              label="MAO Email Address"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@mao.gov.ph"
+              value={form.email}
+              onChange={(event) => setValue("email", event.target.value)}
+              onBlur={() => validateField("email")}
+              error={errors.email}
+            />
+            {!isForgot && (
+              <>
+                <Password
+                  name="password"
+                  value={form.password}
+                  onChange={(event) => setValue("password", event.target.value)}
+                  onBlur={() => validateField("password")}
+                  error={errors.password}
+                  autoComplete={isRegister ? "new-password" : "current-password"}
+                />
+                {isRegister && (
+                  <Password
+                    name="confirm"
+                    label="Confirm Password"
+                    value={form.confirm}
+                    onChange={(event) =>
+                      setValue("confirm", event.target.value)
+                    }
+                    onBlur={() => validateField("confirm")}
+                    error={errors.confirm}
+                    autoComplete="new-password"
+                  />
+                )}
+                {!isRegister && (
+                  <div className="auth-options">
+                    <label className="auth-check">
+                      <input
+                        name="rememberMe"
+                        type="checkbox"
+                        checked={form.rememberMe}
+                        onChange={(event) =>
+                          setValue("rememberMe", event.target.checked)
+                        }
+                      />
+                      <span>Remember me</span>
+                    </label>
+                    <Link className="text-link" to="/forgot-password">
+                      Forgot Password?
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
+            {isRegister && (
+              <div className="consent-group">
+                <label className="auth-check consent">
+                  <input
+                    name="acceptTerms"
+                    type="checkbox"
+                    required
+                    checked={form.acceptTerms}
+                    onChange={(event) =>
+                      setValue("acceptTerms", event.target.checked)
+                    }
+                    onBlur={() => validateField("acceptTerms")}
+                    aria-invalid={Boolean(errors.acceptTerms)}
+                    aria-describedby={
+                      errors.acceptTerms ? "acceptTerms-error" : undefined
+                    }
+                  />
+                  <span>
+                    I agree to the AgriPrice Terms and Conditions and
+                    acknowledge the Privacy Policy.
+                  </span>
+                </label>
+                <ErrorText id="acceptTerms-error">
+                  {errors.acceptTerms}
+                </ErrorText>
+              </div>
+            )}
+            <button disabled={busy} className="button w-full">
+              {busy
+                ? "Please wait…"
+                : isRegister
+                  ? "Register MAO Account"
+                  : isForgot
+                    ? "Check Recovery Options"
+                    : "Sign In"}
+            </button>
+          </div>
+        </form>
+        <p className="auth-switch">
+          {isRegister ? (
+            <>
+              Already have an account?{" "}
+              <Link className="text-link inline-flex" to="/login">
+                Sign in
+              </Link>
+            </>
+          ) : isForgot ? (
+            <Link className="text-link" to="/login">
+              Remember your password? Sign in
+            </Link>
+          ) : (
+            <>
+              Don&apos;t have an MAO account?{" "}
+              <Link className="text-link inline-flex" to="/register">
+                Request access
+              </Link>
+            </>
+          )}
+        </p>
+      </section>
+    </div>
+  );
 }

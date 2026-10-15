@@ -141,7 +141,9 @@ export default function SharedLayout({ role = "FARMER" }) {
     setConfirmSignOut(false);
     try {
       await logout();
-      navigate("/");
+      if (role === "MAO") navigate("/mao/login");
+      else if (role === "ADMIN") navigate("/admin/login");
+      else navigate("/");
     } catch {}
   };
   const nav = (
@@ -168,7 +170,8 @@ export default function SharedLayout({ role = "FARMER" }) {
 
   if (loading)
     return (
-      <div className="app-shell management-shell skeleton-shell">
+      <div className={`app-shell ${farmer ? "farmer-shell" : "management-shell"} skeleton-shell`}>
+        {/* Desktop sidebar skeleton — hidden on mobile via CSS */}
         <aside className="sidebar skeleton-sidebar">
           <div className="skeleton skeleton-brand-mark" />
           <div className="skeleton skeleton-brand-word" />
@@ -177,9 +180,11 @@ export default function SharedLayout({ role = "FARMER" }) {
           ))}
         </aside>
         <div className="main-shell">
+          {/* App header skeleton — visible on all screen sizes, adapts via CSS */}
           <header className="app-header skeleton-app-header">
-            <div className="skeleton skeleton-heading" />
-            <div className="skeleton skeleton-icon" />
+            {!farmer && <div className="skeleton skeleton-icon skeleton-menu-icon" />}
+            <div className="skeleton skeleton-heading skeleton-page-title-text" />
+            <div className="skeleton skeleton-icon skeleton-bell-icon" />
           </header>
           <main className="page-container">
             <PageSkeleton variant={location.pathname} />
@@ -188,6 +193,7 @@ export default function SharedLayout({ role = "FARMER" }) {
         {farmer && <div className="skeleton skeleton-bottom-nav" />}
       </div>
     );
+
 
   return (
     <div

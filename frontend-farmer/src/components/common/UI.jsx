@@ -496,7 +496,10 @@ export function PageSkeleton({ variant = "", chrome = false }) {
     >
       {chrome && (
         <header className="skeleton-public-header">
-          <Brand />
+          <div className="skeleton-brand" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <SkeletonLine className="skeleton-brand-mark" style={{ margin: 0, width: 32, height: 32, borderRadius: "50%" }} />
+            <SkeletonLine className="skeleton-brand-word" style={{ margin: 0, width: 90, height: 16, borderRadius: 6 }} />
+          </div>
           <SkeletonLine className="skeleton-public-actions" />
         </header>
       )}

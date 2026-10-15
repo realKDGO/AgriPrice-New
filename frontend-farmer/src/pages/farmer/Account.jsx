@@ -75,13 +75,23 @@ export function Settings({ initial }) {
   const [open, setOpen] = useState(initial || ""),
     [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
-    firstName: session.firstName,
-    lastName: session.lastName,
-    email: session.email,
+    firstName: session?.firstName || "",
+    lastName: session?.lastName || "",
+    email: session?.email || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  useEffect(() => {
+    if (session) {
+      setForm((prev) => ({
+        ...prev,
+        firstName: session.firstName || "",
+        lastName: session.lastName || "",
+        email: session.email || "",
+      }));
+    }
+  }, [session]);
   const navigate = useNavigate();
   const p = data.settings.preferences;
   const set = (key, value) => setForm({ ...form, [key]: value });

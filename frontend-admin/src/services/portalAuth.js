@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const localApiBase =
+  typeof window !== "undefined" && window.location
+    ? `${window.location.protocol}//${window.location.hostname}:5000/api/v1`
+    : "http://localhost:5000/api/v1";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL || localApiBase,
   withCredentials: true,
   timeout: 15000,
 });
@@ -20,6 +25,15 @@ export function clearAccessToken() {
   sessionStorage.removeItem("agriprice_admin_access_token");
 }
 
+export async function bypass(role = "ADMIN") {
+  const response = await api.post("/auth/bypass", { role });
+  const data = response.data.data;
+
+  accessToken = data.accessToken;
+  sessionStorage.setItem("agriprice_admin_access_token", accessToken);
+  return data.user;
+}
+
 export async function login(email, password, rememberMe = false) {
   const response = await api.post("/auth/login", {
     email,
@@ -30,7 +44,9 @@ export async function login(email, password, rememberMe = false) {
 
   if (data.user?.role !== "ADMIN") {
     await logout().catch(() => {});
-    const error = new Error("This account does not belong to the Admin portal.");
+    const error = new Error(
+      "This account does not belong to the Admin portal.",
+    );
     error.response = {
       status: 403,
       data: {

@@ -38,13 +38,17 @@ if not exist "frontend-admin\.env" (
 )
 
 echo ==========================================
-echo Starting AgriPrice Presentation
+echo Starting AgriPrice Unified Portal
 echo ==========================================
 echo.
-echo Backend: http://localhost:5000
-echo Farmer:  http://localhost:4173
-echo MAO:     http://localhost:4174
-echo Admin:   http://localhost:4175
+echo Backend API:     http://localhost:5000
+echo Unified Web App: http://localhost:4173
+echo.
+echo Dedicated Role URLs:
+echo   - Landing / Public:  http://localhost:4173/
+echo   - Farmer Portal:     http://localhost:4173/farmer (Login: /login)
+echo   - MAO Portal:        http://localhost:4173/mao    (Login: /mao/login)
+echo   - Admin Portal:      http://localhost:4173/admin  (Login: /admin/login)
 echo.
 echo Close this window to stop all services.
 echo.

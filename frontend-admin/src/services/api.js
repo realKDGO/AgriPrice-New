@@ -9,8 +9,13 @@ import axios from 'axios';
  *   - Auth token injection (via interceptors)
  *   - Global error handling
  */
+const localApiBase =
+  typeof window !== 'undefined' && window.location
+    ? `${window.location.protocol}//${window.location.hostname}:5000/api`
+    : 'http://localhost:5000/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || localApiBase,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

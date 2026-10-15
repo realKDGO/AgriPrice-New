@@ -1,218 +1,268 @@
-import { useMemo, useState } from "react";
-import "../../styles/user.css";
+import { useState, useMemo } from "react";
+import { Plus, Search } from "lucide-react";
+import AdminHeader from "../../components/common/AdminHeader";
 
-const INITIAL_USERS = [
-  { id: 1, name: "Juan dela Cruz", email: "juan@agriprice.local", role: "Farmer", status: "Active", lastLogin: "2026-09-05 08:20" },
-  { id: 2, name: "Maria Santos", email: "maria@agriprice.local", role: "Farmer", status: "Active", lastLogin: "2026-09-04 16:10" },
-  { id: 3, name: "David Preat", email: "kdyy@agriprice.ph", role: "Farmer", status: "Active", lastLogin: "2026-09-08 07:13" },
+const DEFAULT_USERS = [
+  {
+    id: 1,
+    name: "Juan dela Cruz",
+    email: "juan@agriprice.local",
+    role: "FARMER",
+    status: "Active",
+    lastLogin: "2026-09-05 08:20",
+  },
+  {
+    id: 2,
+    name: "Maria Santos",
+    email: "maria@agriprice.local",
+    role: "FARMER",
+    status: "Active",
+    lastLogin: "2026-09-04 16:10",
+  },
+  {
+    id: 3,
+    name: "David Freat",
+    email: "kdyy@agriprice.ph",
+    role: "FARMER",
+    status: "Active",
+    lastLogin: "2026-09-06 07:13",
+  },
 ];
 
-const EMPTY_FORM = { name: "", email: "", status: "Active" };
+export default function UserAccounts() {
+  const [users, setUsers] = useState(DEFAULT_USERS);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Active");
 
-const SearchIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <circle cx="11" cy="11" r="7" />
-    <path d="m20 20-3.5-3.5" />
-  </svg>
-);
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    status: "Active",
+  });
 
-const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-    <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" />
-  </svg>
-);
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      const matchSearch =
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase());
+      const matchStatus =
+        statusFilter === "All" || u.status.toLowerCase() === statusFilter.toLowerCase();
+      return matchSearch && matchStatus;
+    });
+  }, [users, search, statusFilter]);
 
-function AccountModal({ title, form, setForm, onSave, onCancel }) {
-  const valid = form.name.trim() && /\S+@\S+\.\S+/.test(form.email);
+  const handleOpenAdd = () => {
+    setEditingUser(null);
+    setFormData({ name: "", email: "", status: "Active" });
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (user) => {
+    setEditingUser(user);
+    setFormData({ name: user.name, email: user.email, status: user.status });
+    setModalOpen(true);
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim()) return;
+
+    if (editingUser) {
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === editingUser.id
+            ? { ...u, name: formData.name, email: formData.email, status: formData.status }
+            : u
+        )
+      );
+    } else {
+      const newUser = {
+        id: Date.now(),
+        name: formData.name,
+        email: formData.email,
+        role: "FARMER",
+        status: formData.status,
+        lastLogin: new Date().toISOString().replace("T", " ").slice(0, 16),
+      };
+      setUsers((prev) => [newUser, ...prev]);
+    }
+    setModalOpen(false);
+  };
 
   return (
-    <div className="ua-overlay" onClick={onCancel}>
-      <div
-        className="ua-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
+    <div>
+      <AdminHeader
+        title="User Accounts"
+        subtitle="Manage Farmer account details and status."
       >
-        <h2>{title}</h2>
+        <button
+          type="button"
+          className="admin-btn-primary"
+          onClick={handleOpenAdd}
+        >
+          <Plus size={16} strokeWidth={2.2} />
+          <span>Add account</span>
+        </button>
+      </AdminHeader>
 
-        <div className="ua-field">
-          <label htmlFor="ua-name">Name</label>
+      {/* Filter Bar */}
+      <div className="admin-filters-bar">
+        <div className="admin-search-wrapper">
+          <Search size={16} className="admin-search-icon" />
           <input
-            id="ua-name"
-            className="ua-input"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            type="text"
+            className="admin-search-input"
+            placeholder="Search name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="ua-field">
-          <label htmlFor="ua-email">Email address</label>
-          <input
-            id="ua-email"
-            type="email"
-            className="ua-input"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-        </div>
-
-        <div className="ua-field">
-          <label htmlFor="ua-status">Status</label>
+        <div className="admin-select-group">
+          <span className="admin-select-label">Status</span>
           <select
-            id="ua-status"
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            className="admin-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option>Active</option>
-            <option>Inactive</option>
+            <option value="Active">Active</option>
+            <option value="Suspended">Suspended</option>
+            <option value="All">All</option>
           </select>
         </div>
-
-        <div className="ua-actions">
-          <button className="ua-btn" onClick={onCancel}>Cancel</button>
-          <button className="ua-btn-primary" disabled={!valid} onClick={onSave}>
-            Save account
-          </button>
-        </div>
       </div>
-    </div>
-  );
-}
 
-export default function UserAccounts() {
-  const [users, setUsers] = useState(INITIAL_USERS);
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("Active");
-  const [modal, setModal] = useState(null); // { mode: "add" | "edit", id? }
-  const [form, setForm] = useState(EMPTY_FORM);
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return users.filter(
-      (u) =>
-        (status === "All" || u.status === status) &&
-        (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
-    );
-  }, [users, query, status]);
-
-  const openAdd = () => {
-    setForm(EMPTY_FORM);
-    setModal({ mode: "add" });
-  };
-
-  const openEdit = (user) => {
-    setForm({ name: user.name, email: user.email, status: user.status });
-    setModal({ mode: "edit", id: user.id });
-  };
-
-  const save = () => {
-    if (modal.mode === "add") {
-      setUsers((prev) => [...prev, { id: Date.now(), role: "Farmer", lastLogin: "—", ...form }]);
-    } else {
-      setUsers((prev) => prev.map((u) => (u.id === modal.id ? { ...u, ...form } : u)));
-    }
-    setModal(null);
-  };
-
-  return (
-    <div className="ua">
-
-      <div className="ua-main">
-        <div className="ua-top">
-          <div className="ua-admin">
-            <span className="ua-avatar">AU</span>
-            Administrator
-          </div>
-        </div>
-
-        <header className="ua-bar">
-          <h1>User Accounts</h1>
-          <button className="ua-bell" aria-label="Notifications">
-            <BellIcon />
-          </button>
-        </header>
-
-        <main className="ua-body">
-          <div className="ua-intro">
-            <p>Manage Farmer account details and status.</p>
-            <button className="ua-btn-primary" onClick={openAdd}>+ Add account</button>
-          </div>
-
-          <div className="ua-filters">
-            <label className="ua-search">
-              <SearchIcon />
-              <input
-                placeholder="Search name or email"
-                aria-label="Search name or email"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </label>
-
-            <div className="ua-field">
-              <label htmlFor="ua-status-filter">Status</label>
-              <select
-                id="ua-status-filter"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option>Active</option>
-                <option>Inactive</option>
-                <option>All</option>
-              </select>
-            </div>
-          </div>
-
-          <section className="ua-card">
-            <table>
-              <thead>
+      {/* Users Table Card */}
+      <div className="admin-card admin-card--flush">
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email Address</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
                 <tr>
-                  <th>Name</th>
-                  <th>Email address</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Last login</th>
-                  <th>Actions</th>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "32px", color: "var(--admin-text-muted)" }}>
+                    No matching farmer accounts found.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {visible.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="ua-empty">No accounts match your search.</td>
-                  </tr>
-                )}
-                {visible.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td><span className="ua-badge">{u.role}</span></td>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user.id}>
+                    <td style={{ fontWeight: 500 }}>{user.name}</td>
+                    <td style={{ color: "var(--admin-text-muted)" }}>{user.email}</td>
                     <td>
-                      <span className={`ua-status${u.status === "Inactive" ? " ua-status--inactive" : ""}`}>
-                        {u.status}
+                      <span className="admin-pill admin-pill--role">
+                        {user.role}
                       </span>
                     </td>
-                    <td>{u.lastLogin}</td>
                     <td>
-                      <button className="ua-btn" onClick={() => openEdit(u)}>Edit account</button>
+                      <span
+                        className={`admin-pill ${
+                          user.status === "Active"
+                            ? "admin-pill--active"
+                            : "admin-pill--suspended"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                    <td style={{ color: "var(--admin-text-muted)" }}>
+                      {user.lastLogin}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="admin-action-link"
+                        onClick={() => handleOpenEdit(user)}
+                      >
+                        Edit account
+                      </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        </main>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {modal && (
-        <AccountModal
-          title={modal.mode === "add" ? "Add account" : "Edit account"}
-          form={form}
-          setForm={setForm}
-          onSave={save}
-          onCancel={() => setModal(null)}
-        />
+      {/* Add / Edit Modal */}
+      {modalOpen && (
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="admin-modal__title">
+              {editingUser ? "Edit Farmer Account" : "Add Farmer Account"}
+            </h2>
+            <form onSubmit={handleSave}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Full Name</label>
+                <input
+                  type="text"
+                  className="admin-form-input"
+                  required
+                  placeholder="e.g. Juan dela Cruz"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Email Address</label>
+                <input
+                  type="email"
+                  className="admin-form-input"
+                  required
+                  placeholder="e.g. juan@agriprice.local"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Status</label>
+                <select
+                  className="admin-select"
+                  style={{ width: "100%", maxWidth: "580px" }}
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value })
+                  }
+                >
+                  <option value="Active">Active</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+
+              <div className="admin-modal__actions">
+                <button
+                  type="button"
+                  className="admin-btn-secondary"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="admin-btn-primary">
+                  {editingUser ? "Save changes" : "Create account"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

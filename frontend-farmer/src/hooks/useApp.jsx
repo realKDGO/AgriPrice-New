@@ -34,8 +34,8 @@ export const adapt = (r) => ({
   date: r.date?.slice(0, 10),
 });
 export function AppProvider({ children }) {
-  const [session, setSession] = useState(defaultFarmerSession),
-    [authLoading, setAuthLoading] = useState(false),
+  const [session, setSession] = useState(null),
+    [authLoading, setAuthLoading] = useState(true),
     [data, setData] = useState(empty),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
@@ -44,21 +44,18 @@ export function AppProvider({ children }) {
   useEffect(() => {
     authService
       .restore()
-      .then(async (r) => {
-        if (r.user?.role === "FARMER") {
+      .then((r) => {
+        if (r.user && r.user.status === "ACTIVE") {
           setSession(r.user);
         } else {
-          const user = await authService.bypass("FARMER");
-          setSession(user);
+          setSession(null);
         }
       })
-      .catch(async () => {
-        try {
-          const user = await authService.bypass("FARMER");
-          if (user) setSession(user);
-        } catch {
-          // Keep defaultFarmerSession
-        }
+      .catch(() => {
+        setSession(null);
+      })
+      .finally(() => {
+        setAuthLoading(false);
       });
   }, []);
   async function reload() {
@@ -124,14 +121,18 @@ export function AppProvider({ children }) {
     document.documentElement.lang = p.language === "Filipino" ? "fil" : "en";
     return () => media.removeEventListener("change", update);
   }, [data.settings.preferences]);
-  async function login(email, password, rememberMe) {
+  async function login(email, password, rememberMe, expectedRole = "FARMER") {
     const u = await authService.login(email, password, rememberMe);
-    if (u?.role !== "FARMER") {
-      await authService.logout().catch(() => { });
-      const error = new Error("This account does not belong to the Farmer portal.");
+    if (expectedRole && u?.role !== expectedRole) {
+      await authService.logout().catch(() => {});
+      const error = new Error(
+        `This account does not belong to the ${expectedRole} portal.`
+      );
       error.response = {
         status: 403,
-        data: { message: "This account belongs to a different AgriPrice portal. Use the correct portal to sign in." },
+        data: {
+          message: `This account has the ${u?.role || "different"} role. Please use your role's dedicated portal.`,
+        },
       };
       throw error;
     }
@@ -146,10 +147,7 @@ export function AppProvider({ children }) {
   async function logout() {
     try {
       await authService.logout().catch(() => {});
-      const user = await authService
-        .bypass("FARMER")
-        .catch(() => defaultFarmerSession);
-      setSession(user);
+      setSession(null);
     } catch (e) {
       setToast(errorMessage(e));
     }

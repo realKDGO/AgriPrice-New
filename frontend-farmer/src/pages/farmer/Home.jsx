@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <>
       <section className="dashboard-welcome">
-        <h2>Welcome back, {session.firstName}</h2>
+        <h2>Welcome back, {session?.firstName || "Farmer"}</h2>
         <p>Review the latest available market information.</p>
       </section>
       <QueryState query={query}>

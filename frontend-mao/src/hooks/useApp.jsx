@@ -1,7 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "../services/authService";
+
 const Context = createContext(null);
-const TEMP_BYPASS_LOGIN = true;
+
+// Set to false to enable real authentication. Set to true for demo/bypass mode.
+const TEMP_BYPASS_LOGIN = false;
 
 const DEMO_MAO_USER = {
   id: "demo-mao",
@@ -11,12 +14,12 @@ const DEMO_MAO_USER = {
   firstName: "MAO",
   lastName: "Demo",
 };
+
 export function AppProvider({ children }) {
-  const [session, setSession] = useState(
-    TEMP_BYPASS_LOGIN ? DEMO_MAO_USER : null,
-  );
-  const [authLoading, setAuthLoading] = useState(!TEMP_BYPASS_LOGIN);
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [toast, setToast] = useState("");
+
   useEffect(() => {
     if (TEMP_BYPASS_LOGIN) {
       setSession(DEMO_MAO_USER);
@@ -27,23 +30,23 @@ export function AppProvider({ children }) {
     authService
       .restore()
       .then(async (r) => {
-        if (r.user?.role !== "MAO" || r.user?.status !== "ACTIVE") {
+        if (r?.user?.role !== "MAO" || r?.user?.status !== "ACTIVE") {
           await authService.logout().catch(() => {});
           setSession(null);
           return;
         }
-
         setSession(r.user);
       })
-      .catch(() => {})
+      .catch(() => {
+        setSession(null);
+      })
       .finally(() => setAuthLoading(false));
 
     const end = () => setSession(null);
-
     window.addEventListener("agriprice:session-ended", end);
-
     return () => window.removeEventListener("agriprice:session-ended", end);
   }, []);
+
   async function login(email, password, rememberMe) {
     const u = await authService.login(email, password, rememberMe);
     if (u?.role !== "MAO" || u?.status !== "ACTIVE") {
@@ -53,7 +56,7 @@ export function AppProvider({ children }) {
         status: 403,
         data: {
           message:
-            "This account belongs to a different AgriPrice portal. Use the correct portal to sign in.",
+            "Access denied. This portal is restricted to MAO accounts only. Normal farmer or admin accounts cannot sign in here.",
         },
       };
       throw e;
@@ -61,10 +64,17 @@ export function AppProvider({ children }) {
     setSession(u);
     return u;
   }
+
   async function logout() {
-    await authService.logout();
+    await authService.logout().catch(() => {});
     setSession(null);
   }
+
+  const notify = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 4000);
+  };
+
   return (
     <Context.Provider
       value={{
@@ -72,7 +82,7 @@ export function AppProvider({ children }) {
         authLoading,
         login,
         logout,
-        notify: setToast,
+        notify,
         t: (x) => x,
       }}
     >
@@ -85,4 +95,5 @@ export function AppProvider({ children }) {
     </Context.Provider>
   );
 }
+
 export const useApp = () => useContext(Context);

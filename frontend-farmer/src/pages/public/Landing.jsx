@@ -78,7 +78,16 @@ export default function Landing() {
           </nav>
           <div className="public-actions">
             {session ? (
-              <Link className="button" to="/farmer">
+              <Link
+                className="button"
+                to={
+                  session.role === "MAO"
+                    ? "/mao"
+                    : session.role === "ADMIN"
+                      ? "/admin"
+                      : "/farmer"
+                }
+              >
                 Go to Dashboard
               </Link>
             ) : (
@@ -128,7 +137,16 @@ export default function Landing() {
             </p>
             <div className="hero-actions">
               {session ? (
-                <Link className="button hero-create" to="/farmer">
+                <Link
+                  className="button hero-create"
+                  to={
+                    session.role === "MAO"
+                      ? "/mao"
+                      : session.role === "ADMIN"
+                        ? "/admin"
+                        : "/farmer"
+                  }
+                >
                   Go to Dashboard <ArrowRight size={17} />
                 </Link>
               ) : (

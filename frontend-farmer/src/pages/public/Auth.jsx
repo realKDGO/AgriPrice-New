@@ -5,8 +5,6 @@ import { Field } from "../../components/common/UI";
 import { useApp } from "../../hooks/useApp";
 import { authService } from "../../services/authService";
 
-const destination = () => "/farmer";
-
 const publicEmailPattern =
   /^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,63}$/i;
 const reservedEmailSuffixes = new Set([
@@ -65,7 +63,6 @@ function Password({
           name={name}
           aria-label={label}
           type={show ? "text" : "password"}
-          required
           autoComplete={autoComplete}
           value={value}
           onChange={onChange}
@@ -87,26 +84,57 @@ function Password({
   );
 }
 
-export default function Auth({ mode = "login" }) {
+export default function Auth({ mode = "login", targetRole = "FARMER" }) {
   const { session, login, register, notify, bypass } = useApp();
   const navigate = useNavigate();
   const formRef = useRef(null);
+
+  const isMao = targetRole === "MAO";
+  const isAdmin = targetRole === "ADMIN";
+  const isFarmer = !isMao && !isAdmin;
+
   const isRegister = mode === "register";
   const isForgot = mode === "forgot";
 
+  const getDestination = () => {
+    if (isMao) return "/mao";
+    if (isAdmin) return "/admin";
+    return "/farmer";
+  };
+
+  const getLoginPath = () => {
+    if (isMao) return "/mao/login";
+    if (isAdmin) return "/admin/login";
+    return "/login";
+  };
+
+  const getRegisterPath = () => {
+    if (isMao) return "/mao/register";
+    return "/register";
+  };
+
+  const getForgotPath = () => {
+    if (isMao) return "/mao/forgot-password";
+    if (isAdmin) return "/admin/forgot-password";
+    return "/forgot-password";
+  };
+
+  // If user already authenticated with the correct role, redirect to dashboard
   useEffect(() => {
     if (session && !isRegister && !isForgot) {
-      navigate(destination(), { replace: true });
+      if (session.role === targetRole) {
+        navigate(getDestination(), { replace: true });
+      }
     }
-  }, [session, isRegister, isForgot, navigate]);
+  }, [session, isRegister, isForgot, targetRole, navigate]);
 
   const handleBypass = async () => {
     setBusy(true);
     try {
-      const user = await bypass("FARMER");
+      const user = await bypass(targetRole);
       if (user) {
-        notify("Signed in via presentation bypass.");
-        navigate(destination());
+        notify(`Signed in via presentation bypass (${targetRole}).`);
+        navigate(getDestination());
       }
     } catch (error) {
       applyServerErrors(error);
@@ -114,6 +142,7 @@ export default function Auth({ mode = "login" }) {
       setBusy(false);
     }
   };
+
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
@@ -198,6 +227,10 @@ export default function Auth({ mode = "login" }) {
         next.email = "An account with this email address already exists.";
       else if (!isRegister && !isForgot && response?.status === 401)
         next.password = "The email address or password is incorrect.";
+      else if (!isRegister && !isForgot && response?.status === 403)
+        next.email =
+          response?.data?.message ||
+          `Access denied. This portal is restricted to ${targetRole} accounts only.`;
       else
         next.email =
           response?.data?.message || "Unable to continue. Try again.";
@@ -213,6 +246,13 @@ export default function Auth({ mode = "login" }) {
     setBusy(true);
     try {
       if (isForgot) {
+        if (isAdmin) {
+          setErrors({
+            email:
+              "Password recovery for administrators is managed by system super-admins.",
+          });
+          return;
+        }
         const result = await authService.forgot(form.email.trim());
         notify(result.message);
         return;
@@ -225,21 +265,29 @@ export default function Auth({ mode = "login" }) {
           password: form.password,
           confirmPassword: form.confirm,
           acceptTerms: form.acceptTerms,
+          role: targetRole,
         });
         if (user) {
-          notify("Account created successfully.");
-          navigate("/farmer");
+          if (isMao) {
+            notify("MAO account created. Awaiting admin approval.");
+            navigate("/mao/login");
+          } else {
+            notify("Account created successfully.");
+            navigate(getDestination());
+          }
         }
         return;
       }
+
       const user = await login(
         form.email.trim(),
         form.password,
         form.rememberMe,
+        targetRole,
       );
       if (user) {
         notify("Signed in successfully.");
-        navigate(destination());
+        navigate(getDestination());
       }
     } catch (error) {
       applyServerErrors(error);
@@ -248,30 +296,65 @@ export default function Auth({ mode = "login" }) {
     }
   }
 
+  // Titles and descriptions tailored to each role
   const heading = isRegister
-    ? "Create your account"
+    ? isMao
+      ? "Create MAO account"
+      : "Create your account"
     : isForgot
       ? "Forgot your password?"
-      : "Sign in";
+      : isMao
+        ? "MAO Sign In"
+        : isAdmin
+          ? "Admin Sign In"
+          : "Sign in";
+
   const description = isRegister
-    ? "Start making data-backed selling decisions today."
+    ? isMao
+      ? "Register as a Municipal Agriculture Office officer to manage crop pricing and market data."
+      : "Start making data-backed selling decisions today."
     : isForgot
-      ? "Enter the email address associated with your AgriPrice account."
-      : "Enter your credentials to access your dashboard.";
+      ? `Enter the email address associated with your ${isMao ? "MAO " : isAdmin ? "Admin " : ""}AgriPrice account.`
+      : isMao
+        ? "Enter your MAO credentials to access the officer dashboard."
+        : isAdmin
+          ? "Enter your administrator credentials to access the admin dashboard."
+          : "Enter your credentials to access your dashboard.";
+
   return (
     <div className={`auth-shell ${isRegister ? "auth-register" : ""}`}>
-      <aside className="auth-story">
+      <aside className={`auth-story ${isAdmin ? "admin-auth-story" : ""}`}>
         <span className="auth-wordmark">AgriPrice</span>
-        <img
-          className="auth-hero-logo"
-          src="/images/agriprice-white.png"
-          alt=""
-          aria-hidden="true"
-        />
+        {isMao ? (
+          <div className="auth-story-copy">
+            <h2>Municipal Agriculture Office</h2>
+            <p>
+              Official portal for monitoring agricultural market prices, verifying
+              crop records, and managing local market data for farmers.
+            </p>
+          </div>
+        ) : isAdmin ? (
+          <div className="auth-story-copy">
+            <h2>System Administration</h2>
+            <p>
+              Centralized platform administration, user management, audit logging,
+              and security controls for AgriPrice.
+            </p>
+          </div>
+        ) : (
+          <img
+            className="auth-hero-logo"
+            src="/images/agriprice-white.png"
+            alt=""
+            aria-hidden="true"
+          />
+        )}
       </aside>
+
       <section className="auth-form">
         <h1>{heading}</h1>
         <p className="muted auth-description">{description}</p>
+
         <form ref={formRef} onSubmit={submit} noValidate>
           <div className="form-stack">
             {isRegister && (
@@ -303,12 +386,24 @@ export default function Auth({ mode = "login" }) {
               </div>
             )}
             <TextField
-              label="Email Address"
+              label={
+                isMao
+                  ? "Official MAO Email"
+                  : isAdmin
+                    ? "Admin Email Address"
+                    : "Email Address"
+              }
               name="email"
               type="email"
               required
               autoComplete="email"
-              placeholder="you@email.com"
+              placeholder={
+                isMao
+                  ? "officer@mao.agriprice.ph"
+                  : isAdmin
+                    ? "admin@agriprice.ph"
+                    : "you@email.com"
+              }
               value={form.email}
               onChange={(event) => setValue("email", event.target.value)}
               onBlur={() => validateField("email")}
@@ -352,7 +447,7 @@ export default function Auth({ mode = "login" }) {
                       />
                       <span>Remember me</span>
                     </label>
-                    <Link className="text-link" to="/forgot-password">
+                    <Link className="text-link" to={getForgotPath()}>
                       Forgot Password?
                     </Link>
                   </div>
@@ -387,44 +482,50 @@ export default function Auth({ mode = "login" }) {
                 </ErrorText>
               </div>
             )}
-            <button disabled={busy} className="button w-full">
+            <button
+              disabled={busy}
+              className={`button w-full ${isAdmin ? "admin-auth-btn" : ""}`}
+            >
               {busy
                 ? "Please wait…"
                 : isRegister
-                  ? "Create Account"
+                  ? isMao
+                    ? "Register MAO Account"
+                    : "Create Account"
                   : isForgot
                     ? "Check Recovery Options"
-                    : "Sign In"}
+                    : isMao
+                      ? "Sign In to MAO"
+                      : isAdmin
+                        ? "Sign In to Admin"
+                        : "Sign In"}
             </button>
-            {!isRegister && !isForgot && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={handleBypass}
-                className="button secondary w-full"
-                style={{ marginTop: "10px" }}
-              >
-                ⚡ Quick Bypass Sign-In (Farmer)
-              </button>
-            )}
           </div>
         </form>
+
         <p className="auth-switch">
           {isRegister ? (
             <>
               Already have an account?{" "}
-              <Link className="text-link inline-flex" to="/login">
+              <Link className="text-link inline-flex" to={getLoginPath()}>
                 Sign in
               </Link>
             </>
           ) : isForgot ? (
-            <Link className="text-link" to="/login">
+            <Link className="text-link" to={getLoginPath()}>
               Remember your password? Sign in
             </Link>
-          ) : (
+          ) : isMao ? (
+            <>
+              Don&apos;t have an MAO account?{" "}
+              <Link className="text-link inline-flex" to={getRegisterPath()}>
+                Request access
+              </Link>
+            </>
+          ) : isAdmin ? null : (
             <>
               Don't have an account?{" "}
-              <Link className="text-link inline-flex" to="/register">
+              <Link className="text-link inline-flex" to={getRegisterPath()}>
                 Create one
               </Link>
             </>
