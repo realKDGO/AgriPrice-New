@@ -325,35 +325,20 @@ export default function Auth({ mode = "login", targetRole = "FARMER" }) {
     <div className={`auth-shell ${isRegister ? "auth-register" : ""}`}>
       <aside className={`auth-story ${isAdmin ? "admin-auth-story" : ""}`}>
         <span className="auth-wordmark">AgriPrice</span>
-        {isMao ? (
-          <div className="auth-story-copy">
-            <h2>Municipal Agriculture Office</h2>
-            <p>
-              Official portal for monitoring agricultural market prices, verifying
-              crop records, and managing local market data for farmers.
-            </p>
-          </div>
-        ) : isAdmin ? (
-          <div className="auth-story-copy">
-            <h2>System Administration</h2>
-            <p>
-              Centralized platform administration, user management, audit logging,
-              and security controls for AgriPrice.
-            </p>
-          </div>
-        ) : (
-          <img
-            className="auth-hero-logo"
-            src="/images/agriprice-white.png"
-            alt=""
-            aria-hidden="true"
-          />
-        )}
+        <img
+          className="auth-hero-logo"
+          src="/images/agriprice-white.png"
+          alt=""
+          aria-hidden="true"
+        />
       </aside>
 
       <section className="auth-form">
+        <div className="mobile-auth-brand">
+          <span className="auth-wordmark">AgriPrice</span>
+        </div>
         <h1>{heading}</h1>
-        <p className="muted auth-description">{description}</p>
+        {isFarmer && <p className="muted auth-description">{description}</p>}
 
         <form ref={formRef} onSubmit={submit} noValidate>
           <div className="form-stack">
@@ -472,9 +457,7 @@ export default function Auth({ mode = "login", targetRole = "FARMER" }) {
                     }
                   />
                   <span>
-                    I agree to the <Link to="/terms">Terms and Conditions</Link>{" "}
-                    and acknowledge the{" "}
-                    <Link to="/privacy-policy">Privacy Policy</Link>.
+                    I agree to the Terms and Conditions and acknowledge the Privacy Policy.
                   </span>
                 </label>
                 <ErrorText id="acceptTerms-error">

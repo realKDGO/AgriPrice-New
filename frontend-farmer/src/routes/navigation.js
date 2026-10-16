@@ -55,5 +55,5 @@ export const adminNav = [
   ["monitoring", "System Monitoring", Activity],
   ["security", "Security", Shield],
   ["backups", "Backup & Recovery", Database],
-  ["settings", "System Settings", Settings],
+  ["settings", "Settings", Settings],
 ];

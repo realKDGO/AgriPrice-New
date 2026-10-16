@@ -7,9 +7,8 @@ import {
   X,
   Search,
   ArrowRight,
-  ArrowLeft,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 export function Brand() {
   return (
     <Link className="brand" to="/" aria-label="AgriPrice home">
@@ -20,7 +19,6 @@ export function Brand() {
 }
 export function PageHead({ eyebrow, title, description, action }) {
   const { t } = useApp();
-  const navigate = useNavigate();
   useEffect(() => {
     document.title = `${title} | AgriPrice`;
   }, [title]);
@@ -29,18 +27,8 @@ export function PageHead({ eyebrow, title, description, action }) {
       <div>
         {eyebrow && <div className="eyebrow">{eyebrow}</div>}
         <h1>{t(title)}</h1>
-        {description && <p className="muted mt-2">{description}</p>}
       </div>
       <div className="page-head-actions">
-        {["Settings", "Notifications"].includes(title) && (
-          <button
-            className="icon-button mobile-back"
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-          >
-            <ArrowLeft size={20} />
-          </button>
-        )}
         {action}
       </div>
     </div>
@@ -176,7 +164,7 @@ export function Stat({ label, value, detail, icon: Icon }) {
     </Panel>
   );
 }
-export function Modal({ title, children, onClose, drawer = false }) {
+export function Modal({ title, children, onClose, drawer = false, closing = false }) {
   const ref = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -192,12 +180,15 @@ export function Modal({ title, children, onClose, drawer = false }) {
     <dialog
       ref={ref}
       aria-label={title}
-      className={drawer ? "dialog drawer" : "dialog"}
-      onCancel={onClose}
+      className={drawer ? `dialog drawer ${closing ? "drawer-closing" : ""}` : "dialog"}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose?.();
+      }}
     >
       <div className="dialog-head">
         <h2>{title}</h2>
-        <button className="icon-button" aria-label="Close" onClick={onClose}>
+        <button className="icon-button" aria-label="Close" onClick={() => onClose?.()}>
           <X size={22} />
         </button>
       </div>
@@ -290,6 +281,28 @@ function FieldSkeleton() {
     <div className="skeleton-field">
       <SkeletonLine className="skeleton-field-label" />
       <SkeletonLine className="skeleton-field-control" />
+    </div>
+  );
+}
+function SearchFieldSkeleton() {
+  return (
+    <div className="skeleton-field">
+      <SkeletonLine className="skeleton-field-label" />
+      <div className="skeleton-search-control" aria-hidden="true">
+        <SkeletonLine className="skeleton-search-icon" />
+        <SkeletonLine className="skeleton-search-text" />
+      </div>
+    </div>
+  );
+}
+function SelectFieldSkeleton() {
+  return (
+    <div className="skeleton-field">
+      <SkeletonLine className="skeleton-field-label" />
+      <div className="skeleton-select-control" aria-hidden="true">
+        <SkeletonLine className="skeleton-select-text" />
+        <SkeletonLine className="skeleton-select-chevron" />
+      </div>
     </div>
   );
 }
@@ -429,10 +442,11 @@ export function PageSkeleton({ variant = "", chrome = false }) {
       <section className="skeleton-page-heading">
         <SkeletonLine className="skeleton-heading" />
         <SkeletonLine className="skeleton-copy" />
+        <SkeletonLine className="skeleton-action-button" />
       </section>
       <section className="skeleton-filter-bar management">
-        <FieldSkeleton />
-        <FieldSkeleton />
+        <SearchFieldSkeleton />
+        <SelectFieldSkeleton />
       </section>
       <TableSkeletonView />
     </>

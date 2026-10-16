@@ -28,7 +28,9 @@ export default function PriceChart({
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <ComposedChart
           data={data}
+          accessibilityLayer={false}
           margin={{ top: 15, right: 10, bottom: 0, left: compact ? -25 : 0 }}
+          className="price-composed-chart"
         >
           <defs>
             <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">

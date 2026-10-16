@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   UserRound,
   LockKeyhole,
@@ -384,19 +384,6 @@ export default function SystemSettings({ initial }) {
         </p>
         <p style={{ color: "var(--admin-text-muted)", fontSize: "13px" }}>
           Version 2.0.0
-        </p>
-        <p style={{ marginTop: "12px", fontSize: "13px" }}>
-          <Link to="/privacy-policy" style={{ color: "var(--admin-green)" }}>
-            Privacy Policy
-          </Link>{" "}
-          ·{" "}
-          <Link to="/terms" style={{ color: "var(--admin-green)" }}>
-            Terms
-          </Link>{" "}
-          ·{" "}
-          <Link to="/cookie-policy" style={{ color: "var(--admin-green)" }}>
-            Cookie Policy
-          </Link>
         </p>
       </div>
     );

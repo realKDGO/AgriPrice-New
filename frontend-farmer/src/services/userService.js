@@ -1,4 +1,4 @@
-import { get, patch } from "./api";
+import { get, patch, post } from "./api";
 
 export const userService = {
   profile: (body) => patch("/users/me", body),
@@ -9,4 +9,6 @@ export const userService = {
     id
       ? patch(mao ? `/admin/mao-accounts/${id}` : `/admin/users/${id}`, body)
       : post("/admin/mao-accounts", body),
+  reviewMaoRequest: (id, body) =>
+    patch(`/admin/mao-accounts/${id}/review`, body),
 };

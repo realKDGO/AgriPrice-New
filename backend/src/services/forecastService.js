@@ -130,6 +130,6 @@ export async function getForecast({ cropId, marketId, horizonMonths }) {
     baselinePrice:baseline||null,
     trend:baseline&&target?(Number(target.predictedPrice)>Number(baseline)?"Increasing":Number(target.predictedPrice)<Number(baseline)?"Decreasing":"Stable"):null,
     method: "Monthly linear trend",
-    note: "Estimates use verified monthly historical prices. Future prices may differ. No calibrated confidence interval is available.",
+    note: "This outlook follows recent monthly price trends to help you plan upcoming sales. Future prices may change with market conditions.",
   };
 }

@@ -178,33 +178,15 @@ export default function Auth({ mode = "login", onSignedIn }) {
   }
 
   const heading = isForgot ? "Forgot your password?" : "Admin Sign In";
-  const description = isForgot
-    ? "Enter the email address associated with your Admin account."
-    : "Enter your administrator credentials to access the admin dashboard.";
-
   return (
     <div className="auth-shell">
       <aside className="auth-story admin-auth-story">
         <span className="auth-wordmark">AgriPrice</span>
-        <div className="auth-story-copy">
-          <h1>System Administration</h1>
-          <p>
-            Manage user accounts, system settings, security configurations, and
-            monitor the AgriPrice platform.
-          </p>
-        </div>
-        <blockquote className="auth-quote">
-          <p>
-            Administration access is restricted to authorized Admin accounts
-            only. All login attempts are logged and monitored for security
-            compliance.
-          </p>
-          <footer>AgriPrice Security & Compliance</footer>
-        </blockquote>
+        <img className="auth-hero-logo" src="/images/agriprice-white.png" alt="" aria-hidden="true" />
       </aside>
       <section className="auth-form">
+        <div className="mobile-auth-brand"><span className="auth-wordmark">AgriPrice</span></div>
         <h1>{heading}</h1>
-        <p className="muted auth-description">{description}</p>
 
         <form ref={formRef} onSubmit={submit} noValidate>
           <div className="form-stack">

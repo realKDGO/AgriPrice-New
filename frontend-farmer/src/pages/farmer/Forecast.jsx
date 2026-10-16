@@ -86,7 +86,7 @@ export default function Forecast() {
         {rows.length ? (
           <>
             <div className="forecast-grid">
-              <Panel>
+              <section className="forecast-chart-panel">
                 <h2>Forecast Chart · {crop?.name}</h2>
                 <PriceChart
                   forecast
@@ -124,7 +124,7 @@ export default function Forecast() {
                     });
                   })()}
                 />
-              </Panel>
+              </section>
               <Panel className="forecast-summary">
                 <h2>Forecast Summary</h2>
                 <div>
@@ -142,10 +142,7 @@ export default function Forecast() {
                   <strong>{query.data.trend||"Not available"}</strong>
                   <span>Method</span>
                   <strong>Monthly Trend</strong>
-                  <small>
-                    Historical monthly averages. No calibrated confidence
-                    interval.
-                  </small>
+                  <small>Based on recent monthly price trends to help plan upcoming sales.</small>
                 </div>
               </Panel>
             </div>

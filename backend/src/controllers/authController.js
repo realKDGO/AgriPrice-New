@@ -17,8 +17,12 @@ function send(res, result, status = 200) {
   });
   return ok(res, data, status);
 }
-export const register = async (req, res) =>
-  send(res, await service.register(req.validated.body, req.ip), 201);
+export const register = async (req, res) => {
+  const result = await service.register(req.validated.body, req.ip);
+  if (result.pendingApproval)
+    return ok(res, { user: result.user, pendingApproval: true }, 201);
+  return send(res, result, 201);
+};
 export const login = async (req, res) =>
   send(res, await service.login(req.validated.body, req.ip));
 export const refresh = async (req, res) =>

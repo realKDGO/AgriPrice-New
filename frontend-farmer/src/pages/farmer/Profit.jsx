@@ -116,7 +116,6 @@ export default function Profit() {
     <>
       <PageHead
         title="Profit Estimation"
-        description="Review sale details and expenses to estimate net earnings."
       />
       <div className="calculator-grid">
         <Panel>

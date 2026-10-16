@@ -20,7 +20,6 @@ export default function Dashboard() {
     <>
       <PageHead
         title="System Overview"
-        description="Manage accounts, review activity, and monitor the application."
       />
       <QueryState query={query}>
         <div className="stats-grid four">

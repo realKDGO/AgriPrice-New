@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ChevronRight,
@@ -30,7 +30,6 @@ export function More() {
         {[
           ...toolsNav,
           ["settings", "Settings", Palette],
-          ["notifications", "Notifications", Bell],
         ].map(([path, label, Icon]) => (
           <Link key={path} className="menu-row" to={`/farmer/${path}`}>
             <Icon size={20} />
@@ -106,7 +105,13 @@ export function Settings({ initial }) {
           confirmPassword: form.confirmPassword,
         });
         setSession(null);
-        navigate("/login");
+        navigate(
+          session?.role === "ADMIN"
+            ? "/admin/login"
+            : session?.role === "MAO"
+              ? "/mao/login"
+              : "/login",
+        );
         notify("Password changed. Please sign in again.");
       } else {
         const u = await userService.profile({
@@ -250,11 +255,6 @@ export function Settings({ initial }) {
         <h2>AgriPrice</h2>
         <p>Crop Price Forecasting and Market Decision Support System.</p>
         <p>Version 2.0.0</p>
-        <p>
-          <Link to="/privacy-policy">Privacy Policy</Link> ·{" "}
-          <Link to="/terms">Terms</Link> ·{" "}
-          <Link to="/cookie-policy">Cookie Policy</Link>
-        </p>
       </>
     );
   }

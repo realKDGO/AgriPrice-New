@@ -207,11 +207,6 @@ export default function Management({ kind }) {
             history: "Historical Records",
           }[kind]
         }
-        description={
-          kind === "prices"
-            ? "New and edited prices enter validation before publication."
-            : undefined
-        }
         action={
           !historical && (
             <button className="button" onClick={() => open()}>

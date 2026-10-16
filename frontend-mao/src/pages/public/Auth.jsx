@@ -252,34 +252,14 @@ export default function Auth({ mode = "login" }) {
     : isForgot
       ? "Forgot your password?"
       : "MAO Sign In";
-  const description = isRegister
-    ? "Register as a Municipal Agriculture Office officer to manage crop pricing and market data."
-    : isForgot
-      ? "Enter the email address associated with your MAO account."
-      : "Enter your MAO credentials to access the officer dashboard.";
-
   return (
     <div className={`auth-shell ${isRegister ? "auth-register" : ""}`}>
       <aside className="auth-story">
         <span className="auth-wordmark">AgriPrice</span>
-        <div className="auth-story-copy">
-          <h1>Municipal Agriculture Office</h1>
-          <p>
-            Manage crop prices, validate market data, and coordinate agricultural
-            information across your municipality.
-          </p>
-        </div>
-        <blockquote className="auth-quote">
-          <p>
-            Access is restricted to authorized Municipal Agriculture Office (MAO)
-            officers only. Unauthorized access attempts are logged and monitored.
-          </p>
-          <footer>AgriPrice Security Policy</footer>
-        </blockquote>
+        <img className="auth-hero-logo" src="/images/agriprice-white.png" alt="" aria-hidden="true" />
       </aside>
       <section className="auth-form">
         <h1>{heading}</h1>
-        <p className="muted auth-description">{description}</p>
 
         <form ref={formRef} onSubmit={submit} noValidate>
           <div className="form-stack">

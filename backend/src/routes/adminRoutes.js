@@ -6,7 +6,11 @@ import { wrap, ok, AppError } from "../utils/errors.js";
 import * as s from "../schemas/index.js";
 import { paginated } from "../services/catalogService.js";
 import { publicUser, checkPassword } from "../services/authService.js";
-import { createMao, updateAccount } from "../services/userService.js";
+import {
+  createMao,
+  updateAccount,
+  reviewMaoRequest,
+} from "../services/userService.js";
 import * as a from "../services/adminService.js";
 import { audit } from "../services/auditService.js";
 import { dashboard } from "../services/reportService.js";
@@ -58,6 +62,20 @@ for (const [path, role] of [
     ),
   );
 }
+adminRouter.patch(
+  "/mao-accounts/:id/review",
+  validate(s.maoAccountReview),
+  wrap(async (req, res) =>
+    ok(
+      res,
+      await reviewMaoRequest(
+        req.user,
+        s.id.parse(req.params.id),
+        req.validated.body,
+      ),
+    ),
+  ),
+);
 adminRouter.post(
   "/mao-accounts",
   validate(s.accountCreate),

@@ -840,6 +840,18 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(145deg, #0f2d1e 0%, #082316 100%) !important;
 }
 
+.admin-auth-story .auth-hero-logo {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 100%;
+  width: 680px;
+  max-width: none;
+  height: auto;
+  opacity: 0.105;
+  transform: translate(-50%, -50%);
+}
+
 .admin-portal-badge {
   display: inline-flex;
   align-items: center;
@@ -1338,6 +1350,8 @@ html { scroll-behavior: smooth; }
   .auth-story { display: none; }
   .auth-form { min-height: 100dvh; width: 100%; padding: 32px 22px; justify-content: center; }
   .mobile-auth-brand { display: block; margin: 0 0 44px; }
+  .mobile-auth-brand .auth-wordmark { color: #0f2d1e; }
+  .auth-form { justify-content: flex-start; padding-top: 32px; }
   .auth-form > h1 { font-size: 1.85rem; }
   .auth-description { margin-bottom: 30px !important; }
   .auth-form .button { margin-top: 10px; }

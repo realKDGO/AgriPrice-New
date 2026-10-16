@@ -1,5 +1,4 @@
 import { post, errorMessage } from "../../services/api";
-import { LegalLinks } from "./Legal";
 import { Link } from "react-router-dom";
 import {
   Menu,
@@ -329,8 +328,7 @@ export default function Landing() {
                 />
               </label>
               <p className="fine-print contact-field-wide">
-                We use your details to review your inquiry.{" "}
-                <Link to="/privacy-policy">Privacy Policy</Link>
+                We use your details to review your inquiry.
               </p>
               {error && (
                 <p role="alert" className="form-error">
@@ -364,7 +362,6 @@ export default function Landing() {
             <Link to="/register">Create Account</Link>
           </div>
         </div>
-        <LegalLinks />
         <small>© 2026 AgriPrice. All rights reserved.</small>
       </footer>
     </div>

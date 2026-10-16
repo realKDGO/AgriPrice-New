@@ -37,7 +37,7 @@ export function AppProvider({ children }) {
   const [session, setSession] = useState(null),
     [authLoading, setAuthLoading] = useState(true),
     [data, setData] = useState(empty),
-    [loading, setLoading] = useState(false),
+    [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
     [toast, setToast] = useState(""),
     [unread, setUnread] = useState(0);
@@ -141,7 +141,7 @@ export function AppProvider({ children }) {
   }
   async function register(body) {
     const u = await authService.register(body);
-    setSession(u);
+    if (u?.status === "ACTIVE") setSession(u);
     return u;
   }
   async function logout() {

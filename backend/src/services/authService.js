@@ -14,8 +14,10 @@ export const publicUser = (u) => ({
   email: u.email,
   role: u.role,
   status: u.status,
+  reviewReason: u.reviewReason || null,
   lastLoginAt: u.lastLoginAt,
   createdAt: u.createdAt,
+  termsAcceptedAt: u.termsAcceptedAt,
 });
 const hash = (s) => createHash("sha256").update(s).digest("hex");
 export const duration = (s) =>
@@ -55,7 +57,8 @@ async function issue(tx, user, familyId = randomUUID(), persistent = false) {
   return { user: publicUser(user), accessToken, refreshToken, persistent };
 }
 export async function register(input, ip) {
-  const { confirmPassword, acceptTerms, password, ...fields } = input;
+  const { confirmPassword, acceptTerms, password, role, ...fields } = input;
+  const requestedRole = role === "MAO" ? "MAO" : "FARMER";
   if (await db.user.findUnique({ where: { email: fields.email } }))
     throw new AppError(409, "An account with this email address already exists.", [
       {
@@ -70,21 +73,24 @@ export async function register(input, ip) {
       data: {
         ...fields,
         passwordHash,
-        role: "FARMER",
+        role: requestedRole,
+        status: requestedRole === "MAO" ? "PENDING" : "ACTIVE",
         preference: { create: {} },
       },
     });
     await audit(
       tx,
       user,
-      "REGISTER",
+      requestedRole === "MAO" ? "MAO_REGISTER_REQUEST" : "REGISTER",
       "User",
       user.id,
       undefined,
       "SUCCESS",
       ip,
     );
-    return issue(tx, user);
+    return requestedRole === "MAO"
+      ? { user: publicUser(user), pendingApproval: true }
+      : issue(tx, user);
   });
 }
 const dummyHash = await bcrypt.hash(randomUUID(), 12);

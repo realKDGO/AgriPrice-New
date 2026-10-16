@@ -14,7 +14,7 @@ export const authService = {
   },
   async register(body) {
     const r = await post("/auth/register", body);
-    setAccessToken(r.accessToken);
+    if (r.accessToken) setAccessToken(r.accessToken);
     return r.user;
   },
   async logout() {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   UserRound,
   LockKeyhole,
@@ -230,11 +230,6 @@ export default function Settings({ initial }) {
         <h2>AgriPrice</h2>
         <p>Crop Price Forecasting and Market Decision Support System.</p>
         <p>Version 2.0.0</p>
-        <p>
-          <Link to="/privacy-policy">Privacy Policy</Link> ·{" "}
-          <Link to="/terms">Terms</Link> ·{" "}
-          <Link to="/cookie-policy">Cookie Policy</Link>
-        </p>
       </>
     );
   }

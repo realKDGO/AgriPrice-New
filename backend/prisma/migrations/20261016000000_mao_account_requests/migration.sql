@@ -1,0 +1,5 @@
+ALTER TYPE "AccountStatus" ADD VALUE 'PENDING';
+ALTER TYPE "AccountStatus" ADD VALUE 'DECLINED';
+
+ALTER TABLE "User"
+ADD COLUMN "reviewReason" VARCHAR(1000);

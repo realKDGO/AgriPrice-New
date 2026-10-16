@@ -40,6 +40,7 @@ export const register = z
     password,
     confirmPassword: z.string(),
     acceptTerms: z.literal(true),
+    role: z.enum(["FARMER", "MAO"]).default("FARMER"),
   })
   .strict()
   .refine((v) => v.password === v.confirmPassword, {
@@ -130,6 +131,7 @@ export const page = z
     status: z
       .enum([
         "ACTIVE",
+        "DECLINED",
         "ARCHIVED",
         "PENDING",
         "VERIFIED",
@@ -187,10 +189,21 @@ export const accountUpdate = z
     firstName: name,
     lastName: name,
     email,
-    status: z.enum(["ACTIVE", "SUSPENDED", "INACTIVE"]),
+    status: z.enum(["ACTIVE", "DECLINED", "SUSPENDED", "INACTIVE"]),
     currentPassword: z.string().optional(),
   })
   .strict();
+export const maoAccountReview = z
+  .object({
+    decision: z.enum(["approve", "decline"]),
+    reason: z.string().trim().min(1).max(1000).optional(),
+    currentPassword: z.string().min(1),
+  })
+  .strict()
+  .refine((v) => v.decision !== "decline" || Boolean(v.reason), {
+    message: "A reason is required when declining a request.",
+    path: ["reason"],
+  });
 export const contact = z
   .object({
     name: z.string().trim().min(1).max(120),

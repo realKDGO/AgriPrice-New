@@ -16,7 +16,6 @@ export default function Dashboard() {
     <>
       <PageHead
         title="Agricultural Overview"
-        description="Manage crop and market information across monitored markets."
         action={
           <Link className="button" to="/mao/prices">
             Record a Price

@@ -42,7 +42,6 @@ export default function Validation() {
     <>
       <PageHead
         title="Price Validation"
-        description="Review quotations before they appear to farmers."
       />
       <Tabs
         items={["PENDING", "VERIFIED", "REJECTED"]}

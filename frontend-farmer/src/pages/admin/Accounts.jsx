@@ -21,6 +21,10 @@ export default function Accounts({ mao = false }) {
     [status, setStatus] = useState(""),
     [page, setPage] = useState(1),
     [edit, setEdit] = useState(null),
+    [review, setReview] = useState(null),
+    [decline, setDecline] = useState(null),
+    [reviewPassword, setReviewPassword] = useState(""),
+    [declineReason, setDeclineReason] = useState(""),
     [busy, setBusy] = useState(false);
   const query = useQuery(
     () => userService.list(mao, { page, search, status: status || undefined }),
@@ -48,15 +52,34 @@ export default function Accounts({ mao = false }) {
       setBusy(false);
     }
   }
+  async function reviewRequest(decision, reason) {
+    if (!review || !reviewPassword) {
+      notify("Enter your admin password to review this request.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await userService.reviewMaoRequest(review.id, {
+        decision,
+        currentPassword: reviewPassword,
+        ...(decision === "decline" ? { reason } : {}),
+      });
+      setReview(null);
+      setDecline(null);
+      setReviewPassword("");
+      setDeclineReason("");
+      query.reload();
+      notify(decision === "approve" ? "MAO account approved." : "MAO request declined.");
+    } catch (e) {
+      notify(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <>
       <PageHead
         title={mao ? "MAO Accounts" : "User Accounts"}
-        description={
-          mao
-            ? "Create and manage MAO accounts."
-            : "Manage Farmer account details and status."
-        }
         action={
           mao && (
             <button
@@ -90,7 +113,10 @@ export default function Accounts({ mao = false }) {
           onChange={setStatus}
           options={[
             { id: "", name: "All statuses" },
-            ...["ACTIVE", "SUSPENDED", "INACTIVE"].map((id) => ({
+            ...(mao
+              ? ["PENDING", "ACTIVE", "DECLINED", "SUSPENDED", "INACTIVE"]
+              : ["ACTIVE", "SUSPENDED", "INACTIVE"]
+            ).map((id) => ({
               id,
               name: id,
             })),
@@ -108,7 +134,11 @@ export default function Accounts({ mao = false }) {
               {
                 key: "status",
                 label: "Status",
-                render: (r) => <Badge>{r.status}</Badge>,
+                render: (r) => (
+                  <Badge tone={["PENDING", "DECLINED"].includes(r.status) ? "warning" : ""}>
+                    {r.status}
+                  </Badge>
+                ),
               },
               {
                 key: "lastLoginAt",
@@ -122,9 +152,16 @@ export default function Accounts({ mao = false }) {
             actions={(r) => (
               <button
                 className="button secondary small"
-                onClick={() => setEdit({ ...r, currentPassword: "" })}
+                onClick={() => {
+                  if (mao && r.status === "PENDING") {
+                    setReview(r);
+                    setReviewPassword("");
+                  } else {
+                    setEdit({ ...r, currentPassword: "" });
+                  }
+                }}
               >
-                Edit Account
+                {mao && r.status === "PENDING" ? "Review Request" : "Edit Account"}
               </button>
             )}
           />
@@ -164,7 +201,7 @@ export default function Accounts({ mao = false }) {
                 label="Account Status"
                 value={edit.status}
                 onChange={(v) => setEdit({ ...edit, status: v })}
-                options={["ACTIVE", "SUSPENDED", "INACTIVE"].map((id) => ({
+                options={["ACTIVE", "DECLINED", "SUSPENDED", "INACTIVE"].map((id) => ({
                   id,
                   name: id,
                 }))}
@@ -197,6 +234,117 @@ export default function Accounts({ mao = false }) {
                   ? "Save Account Changes"
                   : "Create MAO Account"}
             </button>
+          </form>
+        </Modal>
+      )}
+      {review && !decline && (
+        <Modal
+          title="MAO Account Request"
+          onClose={() => {
+            setReview(null);
+            setReviewPassword("");
+          }}
+        >
+          <dl className="result-lines">
+            <div><dt>First Name</dt><dd>{review.firstName}</dd></div>
+            <div><dt>Last Name</dt><dd>{review.lastName}</dd></div>
+            <div><dt>Email Address</dt><dd>{review.email}</dd></div>
+            <div><dt>Account Type</dt><dd>Municipal Agriculture Office</dd></div>
+            <div>
+              <dt>Request Submitted</dt>
+              <dd>{review.createdAt ? new Date(review.createdAt).toLocaleString() : "—"}</dd>
+            </div>
+            <div>
+              <dt>Terms Accepted</dt>
+              <dd>{review.termsAcceptedAt ? new Date(review.termsAcceptedAt).toLocaleString() : "Yes"}</dd>
+            </div>
+          </dl>
+          <Field label="Your Admin Password">
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={reviewPassword}
+              onChange={(e) => setReviewPassword(e.target.value)}
+            />
+          </Field>
+          <div className="row-actions mt-4">
+            <button
+              type="button"
+              className="button secondary"
+              disabled={busy}
+              onClick={() => {
+                setDecline(review);
+                setDeclineReason("");
+              }}
+            >
+              Decline
+            </button>
+            <button
+              type="button"
+              className="button"
+              disabled={busy}
+              onClick={() => reviewRequest("approve")}
+            >
+              {busy ? "Approving…" : "Approve"}
+            </button>
+          </div>
+        </Modal>
+      )}
+      {decline && (
+        <Modal
+          title="Decline MAO Request"
+          onClose={() => {
+            setDecline(null);
+            setReview(decline);
+          }}
+        >
+          <p>
+            Provide a reason for declining {decline.firstName} {decline.lastName}.
+            This reason will be saved with the account decision.
+          </p>
+          <form
+            className="form-stack"
+            onSubmit={(e) => {
+              e.preventDefault();
+              reviewRequest("decline", declineReason.trim());
+            }}
+          >
+            <Field label="Reason for Declining">
+              <textarea
+                required
+                minLength={1}
+                maxLength={1000}
+                rows={4}
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+              />
+            </Field>
+            <Field label="Your Admin Password">
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={reviewPassword}
+                onChange={(e) => setReviewPassword(e.target.value)}
+              />
+            </Field>
+            <div className="row-actions">
+              <button
+                type="button"
+                className="button secondary"
+                disabled={busy}
+                onClick={() => {
+                  setDecline(null);
+                  setReview(decline);
+                }}
+              >
+                Back
+              </button>
+              <button type="submit" className="button" disabled={busy}>
+                {busy ? "Declining…" : "Confirm Decline"}
+              </button>
+            </div>
           </form>
         </Modal>
       )}

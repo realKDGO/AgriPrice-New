@@ -9,12 +9,13 @@ import { priceService } from "../../services/priceService";
 import { marketService } from "../../services/marketService";
 import { money, movement } from "../../utils/format";
 export default function Home() {
-  const { data, session } = useApp();
+  const { data, session, loading: appLoading } = useApp();
   const crop =
     data.crops.find(
       (c) => c.id === data.settings.defaultCrop && c.status === "Active",
     ) || data.crops.find((c) => c.status === "Active");
   const query = useQuery(async () => {
+    if (appLoading) return null;
     if (!crop) return null;
     const result = await marketService.compare({
       cropId: crop.id,
@@ -30,15 +31,14 @@ export default function Home() {
       limit: 100,
     });
     return { best, history: history.items.reverse() };
-  }, [crop?.id]);
+  }, [appLoading, crop?.id]);
   const best = query.data?.best;
   return (
     <>
       <section className="dashboard-welcome">
         <h2>Welcome back, {session?.firstName || "Farmer"}</h2>
-        <p>Review the latest available market information.</p>
       </section>
-      <QueryState query={query}>
+      <QueryState query={{ ...query, loading: appLoading || query.loading }}>
         {best ? (
           <>
             <Panel className="featured-card">
@@ -77,7 +77,7 @@ export default function Home() {
                     compact
                   />
                 ) : (
-                  <p>No verified records in the past 30 days.</p>
+                  <p>Price trends will appear here as recent market records are added.</p>
                 )}
                 <Link className="button" to="/farmer/forecast">
                   View Forecast <ArrowRight size={17} />
@@ -121,6 +121,10 @@ export default function Home() {
                       : `${best.market.distanceKm} km`}
                   </strong>
                   <span>Distance</span>
+                </div>
+                <div>
+                  <strong>#1</strong>
+                  <span>Market Rank</span>
                 </div>
               </div>
               <Link className="button w-full" to="/farmer/markets">

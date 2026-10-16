@@ -189,77 +189,7 @@ export function Security() {
   );
 }
 export function Configuration() {
-  const { notify } = useApp();
-  const query = useQuery(() => get("/admin/settings"));
-  const [open, setOpen] = useState(false),
-    [value, setValue] = useState(30),
-    [password, setPassword] = useState(""),
-    [busy, setBusy] = useState(false);
-  return (
-    <>
-      <Settings />
-      <Panel>
-        <h2>System Settings</h2>
-        <p>Idle session timeout: {query.data || "…"} minutes.</p>
-        <button
-          className="button secondary"
-          onClick={() => {
-            setValue(query.data || 30);
-            setPassword("");
-            setOpen(true);
-          }}
-        >
-          Edit Session Timeout
-        </button>
-      </Panel>
-      {open && (
-        <Modal title="Session Timeout" onClose={() => setOpen(false)}>
-          <form
-            className="form-stack"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              try {
-                await patch("/admin/settings", {
-                  sessionTimeout: Number(value),
-                  currentPassword: password,
-                });
-                setOpen(false);
-                query.reload();
-                notify("System settings saved.");
-              } catch (e) {
-                notify(errorMessage(e));
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <Field label="Idle Timeout (minutes)">
-              <input
-                type="number"
-                required
-                min="5"
-                max="240"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            </Field>
-            <Field label="Your Admin Password">
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Field>
-            <button className="button" disabled={busy}>
-              Save Changes
-            </button>
-          </form>
-        </Modal>
-      )}
-    </>
-  );
+  return <Settings />;
 }
 export function Backups() {
   const { notify } = useApp();

@@ -60,7 +60,6 @@ export default function Markets() {
     <>
       <PageHead
         title="Market Recommendation"
-        description="Compare markets using available verified prices."
       />
       <Panel>
         <form className="recommendation-form" onSubmit={search} noValidate>

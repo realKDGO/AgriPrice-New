@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   NavLink,
   Outlet,
@@ -45,7 +45,7 @@ const managementTitles = {
   "/admin/monitoring": "System Monitoring",
   "/admin/security": "Security",
   "/admin/backups": "Backup & Recovery",
-  "/admin/settings": "System Settings",
+  "/admin/settings": "Settings",
   "/admin/access": "Roles & Access",
   "/admin/reports": "Technical Reports",
   "/admin/contacts": "Contact Messages",
@@ -88,14 +88,32 @@ function Navigation({ items, base, onClose, onNavigate }) {
 
 export default function SharedLayout({ role = "FARMER" }) {
   const [drawer, setDrawer] = useState(false);
+  const [drawerClosing, setDrawerClosing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const { logout, unread, t } = useApp();
+  const { logout, unread, t, loading: appLoading } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const farmer = role === "FARMER";
   const base = `/${role.toLowerCase()}`;
   const beginLoading = () => {};
+  const openDrawer = () => {
+    setDrawerClosing(false);
+    setDrawer(true);
+  };
+  const closeDrawer = (afterClose) => {
+    if (!drawer) {
+      afterClose?.();
+      return;
+    }
+    if (drawerClosing) return;
+    setDrawerClosing(true);
+    window.setTimeout(() => {
+      setDrawer(false);
+      setDrawerClosing(false);
+      afterClose?.();
+    }, 220);
+  };
   const navGroups = farmer
     ? [
         ["OVERVIEW", [["", "Dashboard", farmerNav[0][2]]]],
@@ -126,16 +144,17 @@ export default function SharedLayout({ role = "FARMER" }) {
     managementTitles[location.pathname] ||
     "AgriPrice";
 
-  useEffect(() => {
-    setDrawer(false);
+  useLayoutEffect(() => {
+    if (drawer) closeDrawer();
     window.scrollTo(0, 0);
-    const frame = requestAnimationFrame(() => setLoading(false));
-    return () => cancelAnimationFrame(frame);
+    setLoading(true);
+    const timer = window.setTimeout(() => setLoading(false), 220);
+    return () => window.clearTimeout(timer);
   }, [location.pathname]);
 
   const requestSignOut = () => {
-    setDrawer(false);
-    setConfirmSignOut(true);
+    if (drawer) closeDrawer(() => setConfirmSignOut(true));
+    else setConfirmSignOut(true);
   };
   const signOut = async () => {
     setConfirmSignOut(false);
@@ -155,7 +174,7 @@ export default function SharedLayout({ role = "FARMER" }) {
             items={items}
             base={base}
             onNavigate={beginLoading}
-            onClose={() => setDrawer(false)}
+            onClose={closeDrawer}
           />
         </div>
       ))}
@@ -168,7 +187,8 @@ export default function SharedLayout({ role = "FARMER" }) {
     </>
   );
 
-  if (loading)
+  const dashboardDataLoading = farmer && location.pathname === "/farmer" && appLoading;
+  if ((loading || dashboardDataLoading) && !drawerClosing)
     return (
       <div className={`app-shell ${farmer ? "farmer-shell" : "management-shell"} skeleton-shell`}>
         {/* Desktop sidebar skeleton — hidden on mobile via CSS */}
@@ -201,7 +221,7 @@ export default function SharedLayout({ role = "FARMER" }) {
     >
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <Brand />
+          {farmer ? <Brand /> : <Link className="brand" to={base} aria-label="AgriPrice dashboard"><img className="brand-logo" src="/images/agriprice-white.png" alt="" /><span>AgriPrice</span></Link>}
         </div>
         {nav}
       </aside>
@@ -210,7 +230,7 @@ export default function SharedLayout({ role = "FARMER" }) {
           {!farmer && (
             <button
               className="icon-button management-menu"
-              onClick={() => setDrawer(true)}
+              onClick={openDrawer}
               aria-label="Open navigation"
             >
               <Menu size={21} />
@@ -270,7 +290,12 @@ export default function SharedLayout({ role = "FARMER" }) {
         </nav>
       )}
       {drawer && (
-        <Modal drawer title="AgriPrice" onClose={() => setDrawer(false)}>
+        <Modal
+          drawer
+          title="AgriPrice"
+          closing={drawerClosing}
+          onClose={closeDrawer}
+        >
           {nav}
         </Modal>
       )}

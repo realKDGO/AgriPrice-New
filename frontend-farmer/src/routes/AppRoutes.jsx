@@ -13,7 +13,6 @@ import AdminLayout from "../layouts/AdminLayout";
 import PublicLayout from "../layouts/PublicLayout";
 import { useApp } from "../hooks/useApp";
 import { PageSkeleton } from "../components/common/UI";
-import Legal from "../pages/public/Legal";
 import Home from "../pages/farmer/Home";
 import Landing from "../pages/public/Landing";
 
@@ -156,13 +155,6 @@ export default function AppRoutes() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Landing />} />
-          {["privacy-policy", "terms", "cookie-policy"].map((kind) => (
-            <Route
-              key={kind}
-              path={`/${kind}`}
-              element={<Legal kind={kind} />}
-            />
-          ))}
         </Route>
 
         {/* =======================================================
@@ -236,6 +228,7 @@ export default function AppRoutes() {
             <Route path="forecast" element={<MaoForecast />} />
             <Route path="reports" element={<MaoReports />} />
             <Route path="settings" element={<MaoSettings />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
         </Route>
 
@@ -266,6 +259,7 @@ export default function AppRoutes() {
             <Route path="security" element={<AdminSecurity />} />
             <Route path="backups" element={<AdminBackups />} />
             <Route path="settings" element={<AdminConfiguration />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="access" element={<AdminAccess />} />
             <Route path="reports" element={<AdminTechnicalReports />} />
             <Route path="contacts" element={<AdminContacts />} />

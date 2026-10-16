@@ -30,7 +30,13 @@ export async function updateAccount(actor, id, input, role) {
     throw new AppError(422, "You cannot suspend your own account.");
   const { currentPassword, ...fields } = input;
   return db.$transaction(async (tx) => {
-    const user = await tx.user.update({ where: { id }, data: fields });
+    const user = await tx.user.update({
+      where: { id },
+      data: {
+        ...fields,
+        ...(fields.status === "ACTIVE" ? { reviewReason: null } : {}),
+      },
+    });
     if (user.status !== "ACTIVE")
       await tx.refreshSession.updateMany({
         where: { userId: id, revokedAt: null },
@@ -46,6 +52,46 @@ export async function updateAccount(actor, id, input, role) {
         type: "SECURITY",
         title: "Account updated",
         message: "An administrator updated your account details or access.",
+      },
+    });
+    return publicUser(user);
+  });
+}
+export async function reviewMaoRequest(actor, id, input) {
+  await checkPassword(actor, input.currentPassword);
+  const original = requireRecord(await db.user.findUnique({ where: { id } }));
+  if (original.role !== "MAO")
+    throw new AppError(403, "Use the MAO account review area for this account.");
+  if (original.status !== "PENDING")
+    throw new AppError(409, "This MAO request has already been reviewed.");
+
+  const declined = input.decision === "decline";
+  const status = declined ? "DECLINED" : "ACTIVE";
+  const reviewReason = declined ? input.reason : null;
+  return db.$transaction(async (tx) => {
+    const changed = await tx.user.updateMany({
+      where: { id, role: "MAO", status: "PENDING" },
+      data: { status, reviewReason },
+    });
+    if (changed.count !== 1)
+      throw new AppError(409, "This MAO request has already been reviewed.");
+    const user = await tx.user.findUnique({ where: { id } });
+    await audit(
+      tx,
+      actor,
+      declined ? "MAO_REQUEST_DECLINED" : "MAO_REQUEST_APPROVED",
+      "User",
+      id,
+      declined ? { reason: reviewReason } : undefined,
+    );
+    await tx.notification.create({
+      data: {
+        userId: id,
+        type: "ACCOUNT_REVIEW",
+        title: declined ? "MAO account request declined" : "MAO account approved",
+        message: declined
+          ? "Your MAO account request was declined. Reason: " + reviewReason
+          : "Your MAO account request was approved. You can now sign in.",
       },
     });
     return publicUser(user);
